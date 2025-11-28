@@ -7,5 +7,6 @@ public class User
     public string PasswordHash { get; set; } = default!;
     public string? Name { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
+    public ICollection<OrganizationMember> OrganizationMembers { get; set; } = new List<OrganizationMember>();
 
 }
