@@ -12,7 +12,7 @@ public class Project
     public bool IsArchived { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     
-    public ICollection<Environment> Environments { get; set; } = new List<Environment>();
+    public ICollection<ProjectEnvironment> Environments { get; set; } = new List<ProjectEnvironment>();
     public ICollection<FeatureFlag> FeatureFlags { get; set; } = new List<FeatureFlag>();
     public ICollection<ProjectSetting> Settings { get; set; } = new List<ProjectSetting>();
 }

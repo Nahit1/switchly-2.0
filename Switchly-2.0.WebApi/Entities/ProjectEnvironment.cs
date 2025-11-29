@@ -1,6 +1,6 @@
 namespace Switchly_2._0.WebApi.Entities;
 
-public class Environment
+public class ProjectEnvironment
 {
     public Guid Id { get; set; }
     public Guid ProjectId { get; set; }

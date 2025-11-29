@@ -8,9 +8,6 @@ public class Organization
     public string PublicKey { get; set; } = default!;
     public string SecretKey { get; set; } = default!;
 
-    public Guid OwnerUserId { get; set; }
-    public User OwnerUser { get; set; } = default!;
-
     public DateTimeOffset CreatedAt { get; set; }
     public ICollection<OrganizationMember> Members { get; set; } = new List<OrganizationMember>();
     public ICollection<Project> Projects { get; set; } = new List<Project>();

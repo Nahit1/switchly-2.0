@@ -9,8 +9,8 @@ public class FeatureFlagEnvironment
     public Guid FeatureFlagId { get; set; }
     public FeatureFlag FeatureFlag { get; set; } = default!;
 
-    public Guid EnvironmentId { get; set; }
-    public Environment Environment { get; set; } = default!;
+    public Guid ProjectEnvironmentId { get; set; }
+    public ProjectEnvironment ProjectEnvironment { get; set; } = default!;
 
     public bool IsEnabled { get; set; }
     public RolloutKind DefaultRolloutKind { get; set; }
