@@ -36,8 +36,13 @@ public static class ServiceCollectionAuthExtensions
                     IssuerSigningKey = signingKey
                 };
             });
+        
+        services.AddHttpContextAccessor();
+        services.AddScoped<IUserContext, UserContext>();
 
         services.AddAuthorization(); // rol/org bazlı policy’ler için zemin
+        
+        
 
         return services;
     }

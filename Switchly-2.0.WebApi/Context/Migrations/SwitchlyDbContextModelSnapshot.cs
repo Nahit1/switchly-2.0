@@ -66,7 +66,7 @@ namespace Switchly_2._0.WebApi.Context.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0000-000000000040"),
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 11, 29, 13, 40, 29, 385, DateTimeKind.Unspecified).AddTicks(7700), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 11, 30, 20, 8, 54, 432, DateTimeKind.Unspecified).AddTicks(6400), new TimeSpan(0, 0, 0, 0, 0)),
                             Description = "Enable new dashboard",
                             IsArchived = false,
                             Key = "new_dashboard",
@@ -120,7 +120,7 @@ namespace Switchly_2._0.WebApi.Context.Migrations
                             FeatureFlagId = new Guid("00000000-0000-0000-0000-000000000040"),
                             IsEnabled = true,
                             ProjectEnvironmentId = new Guid("00000000-0000-0000-0000-000000000030"),
-                            UpdatedAt = new DateTimeOffset(new DateTime(2025, 11, 29, 13, 40, 29, 385, DateTimeKind.Unspecified).AddTicks(7700), new TimeSpan(0, 0, 0, 0, 0))
+                            UpdatedAt = new DateTimeOffset(new DateTime(2025, 11, 30, 20, 8, 54, 432, DateTimeKind.Unspecified).AddTicks(6400), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
@@ -130,7 +130,7 @@ namespace Switchly_2._0.WebApi.Context.Migrations
                             FeatureFlagId = new Guid("00000000-0000-0000-0000-000000000040"),
                             IsEnabled = false,
                             ProjectEnvironmentId = new Guid("00000000-0000-0000-0000-000000000031"),
-                            UpdatedAt = new DateTimeOffset(new DateTime(2025, 11, 29, 13, 40, 29, 385, DateTimeKind.Unspecified).AddTicks(7700), new TimeSpan(0, 0, 0, 0, 0))
+                            UpdatedAt = new DateTimeOffset(new DateTime(2025, 11, 30, 20, 8, 54, 432, DateTimeKind.Unspecified).AddTicks(6400), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
@@ -140,7 +140,7 @@ namespace Switchly_2._0.WebApi.Context.Migrations
                             FeatureFlagId = new Guid("00000000-0000-0000-0000-000000000040"),
                             IsEnabled = false,
                             ProjectEnvironmentId = new Guid("00000000-0000-0000-0000-000000000032"),
-                            UpdatedAt = new DateTimeOffset(new DateTime(2025, 11, 29, 13, 40, 29, 385, DateTimeKind.Unspecified).AddTicks(7700), new TimeSpan(0, 0, 0, 0, 0))
+                            UpdatedAt = new DateTimeOffset(new DateTime(2025, 11, 30, 20, 8, 54, 432, DateTimeKind.Unspecified).AddTicks(6400), new TimeSpan(0, 0, 0, 0, 0))
                         });
                 });
 
@@ -202,11 +202,6 @@ namespace Switchly_2._0.WebApi.Context.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
 
-                    b.Property<string>("SecretKey")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
-
                     b.Property<string>("Slug")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -226,10 +221,9 @@ namespace Switchly_2._0.WebApi.Context.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0000-000000000010"),
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 11, 29, 13, 40, 29, 385, DateTimeKind.Unspecified).AddTicks(7700), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 11, 30, 20, 8, 54, 432, DateTimeKind.Unspecified).AddTicks(6400), new TimeSpan(0, 0, 0, 0, 0)),
                             Name = "Demo Organization",
                             PublicKey = "demo-org-public",
-                            SecretKey = "demo-org-secret",
                             Slug = "demo-org"
                         });
                 });
@@ -267,7 +261,7 @@ namespace Switchly_2._0.WebApi.Context.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0000-000000000011"),
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 11, 29, 13, 40, 29, 385, DateTimeKind.Unspecified).AddTicks(7700), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 11, 30, 20, 8, 54, 432, DateTimeKind.Unspecified).AddTicks(6400), new TimeSpan(0, 0, 0, 0, 0)),
                             OrganizationId = new Guid("00000000-0000-0000-0000-000000000010"),
                             Role = "Owner",
                             UserId = new Guid("00000000-0000-0000-0000-000000000001")
@@ -313,7 +307,7 @@ namespace Switchly_2._0.WebApi.Context.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0000-000000000020"),
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 11, 29, 13, 40, 29, 385, DateTimeKind.Unspecified).AddTicks(7700), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 11, 30, 20, 8, 54, 432, DateTimeKind.Unspecified).AddTicks(6400), new TimeSpan(0, 0, 0, 0, 0)),
                             Description = "",
                             IsArchived = false,
                             Key = "demo-project",
@@ -361,7 +355,7 @@ namespace Switchly_2._0.WebApi.Context.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0000-000000000030"),
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 11, 29, 13, 40, 29, 385, DateTimeKind.Unspecified).AddTicks(7700), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 11, 30, 20, 8, 54, 432, DateTimeKind.Unspecified).AddTicks(6400), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDefault = true,
                             Key = "dev",
                             Name = "Development",
@@ -371,7 +365,7 @@ namespace Switchly_2._0.WebApi.Context.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0000-000000000031"),
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 11, 29, 13, 40, 29, 385, DateTimeKind.Unspecified).AddTicks(7700), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 11, 30, 20, 8, 54, 432, DateTimeKind.Unspecified).AddTicks(6400), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDefault = false,
                             Key = "stg",
                             Name = "Staging",
@@ -381,7 +375,7 @@ namespace Switchly_2._0.WebApi.Context.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0000-000000000032"),
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 11, 29, 13, 40, 29, 385, DateTimeKind.Unspecified).AddTicks(7700), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 11, 30, 20, 8, 54, 432, DateTimeKind.Unspecified).AddTicks(6400), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDefault = false,
                             Key = "prod",
                             Name = "Production",
@@ -571,7 +565,7 @@ namespace Switchly_2._0.WebApi.Context.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0000-000000000001"),
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 11, 29, 13, 40, 29, 385, DateTimeKind.Unspecified).AddTicks(7700), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 11, 30, 20, 8, 54, 432, DateTimeKind.Unspecified).AddTicks(6400), new TimeSpan(0, 0, 0, 0, 0)),
                             Email = "demo@switchly.dev",
                             Name = "Demo User",
                             PasswordHash = "DEMO_HASH"

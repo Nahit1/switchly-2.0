@@ -27,7 +27,6 @@ public static class SeedDemoData
             Name = "Demo Organization",
             Slug = "demo-org",
             PublicKey = "demo-org-public",
-            SecretKey = "demo-org-secret",
             CreatedAt = now
         });
 

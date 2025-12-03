@@ -27,9 +27,6 @@ public class OrganizationConfiguration:IEntityTypeConfiguration<Organization>
 
         builder.HasIndex(x => x.PublicKey).IsUnique();
 
-        builder.Property(x => x.SecretKey)
-            .IsRequired()
-            .HasMaxLength(128);
 
         builder.HasMany(x => x.Projects)
             .WithOne(p => p.Organization)

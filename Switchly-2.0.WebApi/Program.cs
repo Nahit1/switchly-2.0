@@ -29,6 +29,9 @@ builder.Services.AddDbContext<SwitchlyDbContext>(opt =>
 var app = builder.Build();
 
 app.UseRouting();
-app.MapCarter();
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapCarter(); 
 
 app.Run();

@@ -21,8 +21,7 @@ public class JwtTokenGenerator(IOptions<JwtSettings> options): IJwtTokenGenerato
         // Org + role claim’leri (ileride claim türünü değiştirebilirsin)
         foreach (var org in organizations)
         {
-            claims.Add(new Claim("org", org.OrganizationId.ToString()));
-            claims.Add(new Claim($"role:{org.OrganizationId}", org.Role));
+            claims.Add(new Claim("org", $"{org.OrganizationId}:{org.Role}"));
         }
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_settings.SecretKey));

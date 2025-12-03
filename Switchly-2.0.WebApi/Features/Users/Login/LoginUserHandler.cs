@@ -7,6 +7,7 @@ using Switchly_2._0.WebApi.Auth;
 using Switchly_2._0.WebApi.Context;
 using Switchly_2._0.WebApi.Models.Common;
 using Switchly_2._0.WebApi.Models.Shared;
+using Switchly_2._0.WebApi.Services.Helpers;
 
 namespace Switchly_2._0.WebApi.Features.Users.Login;
 
@@ -32,7 +33,7 @@ public class RegisterHandlerCommandValidator : AbstractValidator<LoginUserComman
     }
 }
 
-public class LoginUserHandler(SwitchlyDbContext context,  IJwtTokenGenerator jwtTokenGenerator):IRequestHandler<LoginUserCommand, Response<UserLoginDto>>
+public class LoginUserHandler(SwitchlyDbContext context, IJwtTokenGenerator jwtTokenGenerator):IRequestHandler<LoginUserCommand, Response<UserLoginDto>>
 {
     public async Task<Response<UserLoginDto>> Handle(LoginUserCommand request, CancellationToken cancellationToken)
     {
@@ -41,7 +42,7 @@ public class LoginUserHandler(SwitchlyDbContext context,  IJwtTokenGenerator jwt
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Email == request.Email, cancellationToken);
         
-        if (user is null || user.PasswordHash != request.Password)
+        if (user is null || user.PasswordHash != HashPasswordService.Hash(request.Password))
             return Response<UserLoginDto>.Fail("Email ya da şifre hatalı.");
 
         var organizations = await context.OrganizationMembers
@@ -57,10 +58,5 @@ public class LoginUserHandler(SwitchlyDbContext context,  IJwtTokenGenerator jwt
         });
     }
     
-    private static string Hash(string input)
-    {
-        using var sha = SHA256.Create();
-        var bytes = sha.ComputeHash(Encoding.UTF8.GetBytes(input));
-        return Convert.ToBase64String(bytes);
-    }
+    
 }
