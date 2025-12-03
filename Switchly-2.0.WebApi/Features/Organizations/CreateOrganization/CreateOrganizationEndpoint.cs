@@ -21,7 +21,7 @@ public class CreateOrganizationEndpoint:ICarterModule
                 return res.Success ? Results.Ok(res) : Results.BadRequest(res);
             })
             .WithTags("Organization")
-            .WithName("Create")
+            .WithName("CreateOrganization")
             .RequireAuthorization();
     }
 }
