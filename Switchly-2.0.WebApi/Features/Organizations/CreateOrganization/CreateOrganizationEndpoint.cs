@@ -16,7 +16,7 @@ public class CreateOrganizationEndpoint:ICarterModule
         app.MapPost("/api/organization/create", async ([FromBody] Request r, IMediator mediator) =>
             {
                 // MVP: Password -> “hash” gibi saklandı; gerçek projede hashing ekle
-                var cmd = new CreateOrganizationCommand(r.Name);
+                var cmd = new CreateOrganizationRequest(r.Name);
                 var res = await mediator.Send(cmd);
                 return res.Success ? Results.Ok(res) : Results.BadRequest(res);
             })

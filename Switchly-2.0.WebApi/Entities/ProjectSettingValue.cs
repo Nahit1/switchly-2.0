@@ -10,6 +10,6 @@ public class ProjectSettingValue
     public Guid ProjectEnvironmentId { get; set; }
     public ProjectEnvironment ProjectEnvironment { get; set; } = default!;
 
-    public string Value { get; set; } = default!;
+    public string? Value { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
 }

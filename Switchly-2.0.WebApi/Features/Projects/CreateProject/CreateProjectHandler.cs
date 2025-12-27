@@ -47,6 +47,7 @@ public class CreateOrganizationHandler(SwitchlyDbContext context, IUserContext u
             return Response<CreateProjectDto>.Fail("User has no permission to create a project");
         }
 
+        var now = DateTime.UtcNow;
         var project = new Project
         {
             OrganizationId = request.OrganizationId,
@@ -54,10 +55,48 @@ public class CreateOrganizationHandler(SwitchlyDbContext context, IUserContext u
             Key = Guid.Empty.ToString(),
             Description = request.description,
             IsArchived = false,
-            CreatedAt = DateTime.UtcNow,
+            CreatedAt = now,
         };
         
         await context.Projects.AddAsync(project, cancellationToken);
+        
+        
+        var environments = new List<ProjectEnvironment>
+        {
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ProjectId = project.Id,
+                Key = "dev",
+                Name = "Development",
+                IsDefault = true,
+                SortOrder = 1,
+                CreatedAt = now
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ProjectId = project.Id,
+                Key = "stg",
+                Name = "Staging",
+                IsDefault = false,
+                SortOrder = 2,
+                CreatedAt = now
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ProjectId = project.Id,
+                Key = "prod",
+                Name = "Production",
+                IsDefault = false,
+                SortOrder = 3,
+                CreatedAt = now
+            }
+        };
+
+        context.ProjectEnvironments.AddRange(environments);
+        
         if (await context.SaveChangesAsync(cancellationToken) > 0)
         {
             return Response<CreateProjectDto>.Ok(new CreateProjectDto{ProjectId = project.Id},"Project created");

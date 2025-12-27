@@ -8,7 +8,7 @@ using Switchly_2._0.WebApi.Services.Helpers;
 
 namespace Switchly_2._0.WebApi.Features.Organizations.CreateOrganization;
 
-public sealed record CreateOrganizationCommand(string Name): IRequest<Response<CreateOrganizationDto>>;
+public sealed record CreateOrganizationRequest(string Name): IRequest<Response<CreateOrganizationDto>>;
 
 public sealed record CreateOrganizationDto
 {
@@ -17,9 +17,9 @@ public sealed record CreateOrganizationDto
 }
 
 public class CreateOrganizationHandler(SwitchlyDbContext context, IUserContext userContext)
-    : IRequestHandler<CreateOrganizationCommand, Response<CreateOrganizationDto>>
+    : IRequestHandler<CreateOrganizationRequest, Response<CreateOrganizationDto>>
 {
-    public async Task<Response<CreateOrganizationDto>> Handle(CreateOrganizationCommand request, CancellationToken cancellationToken)
+    public async Task<Response<CreateOrganizationDto>> Handle(CreateOrganizationRequest request, CancellationToken cancellationToken)
     {
         var checkExists = context.Organizations.FirstOrDefault(x => x.Name == request.Name);
         if (checkExists is not null)

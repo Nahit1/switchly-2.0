@@ -3,16 +3,33 @@ using Carter;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi;
 using Switchly_2._0.WebApi.Behaviors;
 using Switchly_2._0.WebApi.Context;
 using Switchly_2._0.WebApi.Extensions;
 
+
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("Database");
 
+
+
 builder.Services.AddAuth(builder.Configuration);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy
+            .AllowAnyOrigin() // Geliştirme aşamasında açıyoruz, production'da kısıtlaman gerekebilir
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
 builder.Services.AddCarter();
+
+
 
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
@@ -28,7 +45,9 @@ builder.Services.AddDbContext<SwitchlyDbContext>(opt =>
 
 var app = builder.Build();
 
+
 app.UseRouting();
+app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 
