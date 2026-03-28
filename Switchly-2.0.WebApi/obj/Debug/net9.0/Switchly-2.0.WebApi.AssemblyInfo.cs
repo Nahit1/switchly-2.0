@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Switchly-2.0.WebApi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1e66845574c90becbb6342f554650a992eb167d5")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a8150be777aa833ff02de7f1988e70066b9bd665")]
 [assembly: System.Reflection.AssemblyProductAttribute("Switchly-2.0.WebApi")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Switchly-2.0.WebApi")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -23,12 +23,11 @@ public class EvaluateFlagEndpoint:CarterModule
         app.MapPost("/api/flag/evaluate", async ([FromBody] Request r, IMediator mediator) =>
             {
                 // MVP: Password -> “hash” gibi saklandı; gerçek projede hashing ekle
-                var cmd = new EvaluateFlagRequest(r.PublicKey,r.ProjectKey,r.EnvironmentKey,r.FlagKey,r.Traits);
+                var cmd = new EvaluateFlagRequest(r.PublicKey, r.ProjectKey, r.EnvironmentKey, r.FlagKey, r.Traits);
                 var res = await mediator.Send(cmd);
                 return res.Success ? Results.Ok(res) : Results.BadRequest(res);
             })
             .WithTags("Flag")
-            .WithName("Evaluate")
-            .RequireAuthorization();
+            .WithName("EvaluateFlag");
     }
 }

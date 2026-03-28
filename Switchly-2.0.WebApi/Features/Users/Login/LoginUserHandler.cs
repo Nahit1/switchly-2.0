@@ -18,6 +18,8 @@ public sealed record LoginUserCommand(string Email, string Password)
 public sealed record UserLoginDto
 {
     public Guid UserId { get; init; }
+    public string Name { get; set; }
+    public string Email { get; set; }
     public ICollection<OrganizationRoleDto> Organizations { get; init; } = new List<OrganizationRoleDto>();
     public string Token { get; init; } = string.Empty;
 }
@@ -53,6 +55,8 @@ public class LoginUserHandler(SwitchlyDbContext context, IJwtTokenGenerator jwtT
         var token = jwtTokenGenerator.GenerateToken(user.Id, organizations);
         return Response<UserLoginDto>.Ok(new UserLoginDto{
             UserId = user.Id,
+            Email = user.Email,
+            Name = user.Name,
             Organizations = organizations,
             Token = token,
         });

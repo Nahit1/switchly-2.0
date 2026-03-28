@@ -52,14 +52,13 @@ public class CreateOrganizationHandler(SwitchlyDbContext context, IUserContext u
         {
             OrganizationId = request.OrganizationId,
             Name = request.name,
-            Key = Guid.Empty.ToString(),
+            Key = Guid.NewGuid().ToString(),
             Description = request.description,
             IsArchived = false,
             CreatedAt = now,
         };
         
         await context.Projects.AddAsync(project, cancellationToken);
-        
         
         var environments = new List<ProjectEnvironment>
         {

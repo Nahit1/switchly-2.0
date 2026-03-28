@@ -1,23 +1,24 @@
-﻿FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
-USER $APP_UID
+﻿FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /app
+
+# Copy only the project file first for better layer caching
+COPY Switchly-2.0.WebApi/Switchly-2.0.WebApi.csproj ./
+RUN dotnet restore "./Switchly-2.0.WebApi.csproj"
+
+# Copy only this project folder (build context may be repo root)
+COPY Switchly-2.0.WebApi/. ./
+
+# Publish (no restore needed because it was done above)
+RUN dotnet publish "./Switchly-2.0.WebApi.csproj" -c Release -o /app/publish --no-restore /p:UseAppHost=false
+
+
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
+WORKDIR /app
+
+ENV ASPNETCORE_URLS=http://+:8080
 EXPOSE 8080
-EXPOSE 8081
 
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
-ARG BUILD_CONFIGURATION=Release
-WORKDIR /src
-COPY ["Switchly-2.0.WebApi/Switchly-2.0.WebApi.csproj", "Switchly-2.0.WebApi/"]
-RUN dotnet restore "Switchly-2.0.WebApi/Switchly-2.0.WebApi.csproj"
-COPY . .
-WORKDIR "/src/Switchly-2.0.WebApi"
-RUN dotnet build "Switchly-2.0.WebApi.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
-FROM build AS publish
-ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "Switchly-2.0.WebApi.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+COPY --from=build /app/publish .
 
-FROM base AS final
-WORKDIR /app
-COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "Switchly-2.0.WebApi.dll"]

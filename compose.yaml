@@ -1,0 +1,38 @@
+﻿services:
+  postgres_switchly_db:
+    image: postgres:15
+    container_name: postgres_switchly_db
+    restart: always
+    environment:
+      POSTGRES_USER: test_user
+      POSTGRES_PASSWORD: test_user
+      POSTGRES_DB: switchly
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_switchly_db:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U test_user -d switchly" ]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  switchly_api:
+    build:
+      context: .
+      dockerfile: Switchly-2.0.WebApi/Dockerfile
+    container_name: switchly_api
+    restart: always
+    depends_on:
+      postgres_switchly_db:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__Database: "Host=postgres_switchly_db;Port=5432;Database=switchly;Username=test_user;Password=test_user"
+    ports:
+      - "8080:8080"
+    volumes:
+      - /tmp/backend-log.xml:/app/backend-log.xml
+
+volumes:
+  postgres_switchly_db:
+    driver: local

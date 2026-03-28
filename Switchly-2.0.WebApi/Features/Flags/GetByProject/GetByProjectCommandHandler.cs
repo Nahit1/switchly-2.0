@@ -24,6 +24,8 @@ public sealed record GetFlagByProjectDto
 
     public List<GetFlagEnvironmentDto> Environments { get; set; } = new();
     public List<GetFlagVariantDto> Variants { get; set; } = new();
+    
+    
 }
 
 public sealed record GetFlagVariantDto
@@ -36,12 +38,31 @@ public sealed record GetFlagVariantDto
 public sealed record GetFlagEnvironmentDto
 {
     public Guid ProjectEnvironmentId { get; set; }
+    public Guid FeatureFlagEnvironmentId { get; set; }
     public string EnvironmentKey { get; set; } = default!;
     public string EnvironmentName { get; set; } = default!;
 
     public bool IsEnabled { get; set; }
     public RolloutKind DefaultRolloutKind { get; set; }
     public int DefaultRolloutPercentage { get; set; }
+    
+    public List<SegmentGroupsDto> SegmentGroups { get; set; } = new();
+}
+
+public sealed record SegmentGroupsDto
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; } = default!;
+    public string Key { get; set; } = default!;
+    public string? Description { get; set; }
+    public ICollection<SegmentRuleDto> SegmentRules { get; set; }
+}
+
+public sealed record SegmentRuleDto
+{
+    public string? TraitKey { get; set; }
+    public string? Operator { get; set; }
+    public string? Value { get; set; }
 }
 
 public class GetByProjectCommandHandler(SwitchlyDbContext context, IUserContext userContext)
@@ -78,9 +99,25 @@ public class GetByProjectCommandHandler(SwitchlyDbContext context, IUserContext 
                         EnvironmentName = fe.ProjectEnvironment.Name,
                         IsEnabled = fe.IsEnabled,
                         DefaultRolloutKind = fe.DefaultRolloutKind,
-                        DefaultRolloutPercentage = fe.DefaultRolloutPercentage
-                    })
-                    .ToList(),
+                        DefaultRolloutPercentage = fe.DefaultRolloutPercentage,
+                        FeatureFlagEnvironmentId = fe.Id,
+                        SegmentGroups = fe.SegmentTargetings
+                            .Select(x=>new SegmentGroupsDto
+                            {
+                                Id = x.Id,
+                                Name = x.SegmentGroup.Name,
+                                Key = x.SegmentGroup.Key,
+                                Description = x.SegmentGroup.Description,
+                                SegmentRules = x.SegmentGroup.Rules
+                                    .Select(r => new SegmentRuleDto
+                                    {
+                                        TraitKey = r.TraitKey,
+                                        Operator = r.Operator,
+                                        Value = r.Value,
+                                    }).ToList()
+                            }).ToList()
+                        
+                    }).ToList(),
                 Variants = f.Variants
                     .OrderBy(v => v.Key)
                     .Select(v => new GetFlagVariantDto
@@ -90,7 +127,7 @@ public class GetByProjectCommandHandler(SwitchlyDbContext context, IUserContext 
                         Name = v.Name,
                         PayloadJson = v.PayloadJson
                     })
-                    .ToList()
+                    .ToList(),
             })
             .ToListAsync(cancellationToken);
 

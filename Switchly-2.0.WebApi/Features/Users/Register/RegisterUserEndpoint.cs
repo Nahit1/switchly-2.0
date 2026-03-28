@@ -12,9 +12,6 @@ public class RegisterUserEndpoint:ICarterModule
         public string Email { get; set; } = default!;
         public string Password { get; set; } = default!;
         public string Name { get; set; } = default!;
-        
-        
-        
     }
     
     public void AddRoutes(IEndpointRouteBuilder app)

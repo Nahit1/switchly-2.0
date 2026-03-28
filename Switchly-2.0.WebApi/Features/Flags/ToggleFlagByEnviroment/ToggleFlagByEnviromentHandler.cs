@@ -34,9 +34,8 @@ public class ToggleFlagByEnviromentHandler(
             .AsNoTracking()
             .AnyAsync(x =>
                     x.FeatureFlagId == request.FeatureFlagId &&
-                    x.ProjectEnvironmentId == request.ProjectEnvironmentId &&
-                    x.FeatureFlag.ProjectId == request.ProjectId &&
-                    x.ProjectEnvironment.ProjectId == request.ProjectId,
+                    x.Id == request.ProjectEnvironmentId &&
+                    x.ProjectEnvironment.ProjectId== request.ProjectId,
                 cancellationToken);
 
         if (!valid)
@@ -45,7 +44,7 @@ public class ToggleFlagByEnviromentHandler(
         var entity = await context.FeatureFlagEnvironments
             .FirstOrDefaultAsync(x =>
                 x.FeatureFlagId == request.FeatureFlagId &&
-                x.ProjectEnvironmentId == request.ProjectEnvironmentId, cancellationToken);
+                x.Id == request.ProjectEnvironmentId, cancellationToken);
 
         if (entity is null)
             return Response<bool>.Fail("FeatureFlagEnvironment kaydı bulunamadı.");
