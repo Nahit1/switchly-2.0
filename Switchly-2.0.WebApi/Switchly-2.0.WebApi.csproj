@@ -27,6 +27,7 @@
       <Content Include="..\.dockerignore">
         <Link>.dockerignore</Link>
       </Content>
+      <Content Include=".github\workflows\deploy.yml" />
     </ItemGroup>
 
     <ItemGroup>

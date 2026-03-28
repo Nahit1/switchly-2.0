@@ -18,4 +18,6 @@ Global
 		{BAE3A75C-23A0-49C2-AC5A-AD355E970510}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BAE3A75C-23A0-49C2-AC5A-AD355E970510}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+	EndGlobalSection
 EndGlobal
