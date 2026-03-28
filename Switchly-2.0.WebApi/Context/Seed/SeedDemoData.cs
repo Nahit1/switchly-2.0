@@ -8,7 +8,7 @@ public static class SeedDemoData
 {
     public static void Apply(ModelBuilder modelBuilder)
     {
-        var now = DateTimeOffset.UtcNow;
+        var now = new DateTimeOffset(2026, 3, 28, 0, 0, 0, TimeSpan.Zero);
 
         // USER
         modelBuilder.Entity<User>().HasData(new User
