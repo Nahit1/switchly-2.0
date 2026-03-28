@@ -13,7 +13,7 @@ public class CreateOrganizationEndpoint:ICarterModule
     }
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapPost("/api/organization/create", async ([FromBody] Request r, IMediator mediator) =>
+        app.MapPost("/api/organization/createe", async ([FromBody] Request r, IMediator mediator) =>
             {
                 // MVP: Password -> “hash” gibi saklandı; gerçek projede hashing ekle
                 var cmd = new CreateOrganizationRequest(r.Name);

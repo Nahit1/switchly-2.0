@@ -159,12 +159,7 @@ namespace Switchly_2._0.WebApi.Context.Migrations
                         .IsRequired()
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
-
-                    b.Property<string>("SecretKey")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
-
+                    
                     b.Property<string>("Slug")
                         .IsRequired()
                         .HasMaxLength(255)

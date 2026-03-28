@@ -60,7 +60,7 @@ namespace Switchly_2._0.WebApi.Context.Migrations
                     b.HasIndex("ProjectId", "Key")
                         .IsUnique();
 
-                    b.ToTable("FeatureFlags");
+                    b.ToTable("FeatureFlags", (string)null);
 
                     b.HasData(
                         new
@@ -109,7 +109,7 @@ namespace Switchly_2._0.WebApi.Context.Migrations
                     b.HasIndex("FeatureFlagId", "ProjectEnvironmentId")
                         .IsUnique();
 
-                    b.ToTable("FeatureFlagEnvironments");
+                    b.ToTable("FeatureFlagEnvironments", (string)null);
 
                     b.HasData(
                         new
@@ -180,7 +180,7 @@ namespace Switchly_2._0.WebApi.Context.Migrations
                     b.HasIndex("FeatureFlagEnvironmentId", "SegmentGroupId")
                         .IsUnique();
 
-                    b.ToTable("FeatureFlagSegmentTargetings");
+                    b.ToTable("FeatureFlagSegmentTargetings", (string)null);
                 });
 
             modelBuilder.Entity("Switchly_2._0.WebApi.Entities.Organization", b =>
@@ -215,7 +215,7 @@ namespace Switchly_2._0.WebApi.Context.Migrations
                     b.HasIndex("Slug")
                         .IsUnique();
 
-                    b.ToTable("Organizations");
+                    b.ToTable("Organizations", (string)null);
 
                     b.HasData(
                         new
@@ -255,7 +255,7 @@ namespace Switchly_2._0.WebApi.Context.Migrations
                     b.HasIndex("OrganizationId", "UserId")
                         .IsUnique();
 
-                    b.ToTable("OrganizationMembers");
+                    b.ToTable("OrganizationMembers", (string)null);
 
                     b.HasData(
                         new
@@ -301,7 +301,7 @@ namespace Switchly_2._0.WebApi.Context.Migrations
                     b.HasIndex("OrganizationId", "Key")
                         .IsUnique();
 
-                    b.ToTable("Projects");
+                    b.ToTable("Projects", (string)null);
 
                     b.HasData(
                         new
@@ -349,7 +349,7 @@ namespace Switchly_2._0.WebApi.Context.Migrations
                     b.HasIndex("ProjectId", "Key")
                         .IsUnique();
 
-                    b.ToTable("ProjectEnvironments");
+                    b.ToTable("ProjectEnvironments", (string)null);
 
                     b.HasData(
                         new
@@ -417,7 +417,7 @@ namespace Switchly_2._0.WebApi.Context.Migrations
                     b.HasIndex("ProjectId", "Key")
                         .IsUnique();
 
-                    b.ToTable("ProjectSettings");
+                    b.ToTable("ProjectSettings", (string)null);
                 });
 
             modelBuilder.Entity("Switchly_2._0.WebApi.Entities.ProjectSettingValue", b =>
@@ -445,7 +445,7 @@ namespace Switchly_2._0.WebApi.Context.Migrations
                     b.HasIndex("ProjectSettingId", "ProjectEnvironmentId")
                         .IsUnique();
 
-                    b.ToTable("ProjectSettingValues");
+                    b.ToTable("ProjectSettingValues", (string)null);
                 });
 
             modelBuilder.Entity("Switchly_2._0.WebApi.Entities.SegmentGroup", b =>
@@ -481,7 +481,7 @@ namespace Switchly_2._0.WebApi.Context.Migrations
                     b.HasIndex("OrganizationId", "Key")
                         .IsUnique();
 
-                    b.ToTable("SegmentGroups");
+                    b.ToTable("SegmentGroups", (string)null);
                 });
 
             modelBuilder.Entity("Switchly_2._0.WebApi.Entities.SegmentRule", b =>
@@ -529,7 +529,7 @@ namespace Switchly_2._0.WebApi.Context.Migrations
 
                     b.HasIndex("SegmentGroupId");
 
-                    b.ToTable("SegmentRules");
+                    b.ToTable("SegmentRules", (string)null);
                 });
 
             modelBuilder.Entity("Switchly_2._0.WebApi.Entities.User", b =>
@@ -558,7 +558,7 @@ namespace Switchly_2._0.WebApi.Context.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
 
                     b.HasData(
                         new
@@ -603,7 +603,7 @@ namespace Switchly_2._0.WebApi.Context.Migrations
                     b.HasIndex("FeatureFlagId", "Key")
                         .IsUnique();
 
-                    b.ToTable("Variants");
+                    b.ToTable("Variants", (string)null);
                 });
 
             modelBuilder.Entity("Switchly_2._0.WebApi.Entities.FeatureFlag", b =>
