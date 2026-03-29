@@ -8,6 +8,8 @@ project.nuget.cache
 *.nupkg
 *.snupkg
 .idea/
+**/AssemblyInfo.cs
+**/AssemblyInfoInputs.cache
 
 
 # Compiled output
