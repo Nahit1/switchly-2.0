@@ -51,10 +51,14 @@ public sealed record GetFlagEnvironmentDto
 
 public sealed record SegmentGroupsDto
 {
-    public Guid Id { get; set; }
+    public Guid Id { get; set; }                                  // FeatureFlagSegmentTargeting.Id (update için)
     public string Name { get; set; } = default!;
     public string Key { get; set; } = default!;
     public string? Description { get; set; }
+    public RolloutKind RolloutKind { get; set; }                  // targeting'in kendi rollout'u
+    public int RolloutPercentage { get; set; }
+    public int Priority { get; set; }
+    public bool IsEnabled { get; set; }
     public ICollection<SegmentRuleDto> SegmentRules { get; set; }
 }
 
@@ -102,12 +106,17 @@ public class GetByProjectCommandHandler(SwitchlyDbContext context, IUserContext 
                         DefaultRolloutPercentage = fe.DefaultRolloutPercentage,
                         FeatureFlagEnvironmentId = fe.Id,
                         SegmentGroups = fe.SegmentTargetings
+                            .OrderByDescending(x => x.Priority)
                             .Select(x=>new SegmentGroupsDto
                             {
                                 Id = x.Id,
                                 Name = x.SegmentGroup.Name,
                                 Key = x.SegmentGroup.Key,
                                 Description = x.SegmentGroup.Description,
+                                RolloutKind = x.RolloutKind,
+                                RolloutPercentage = x.RolloutPercentage,
+                                Priority = x.Priority,
+                                IsEnabled = x.IsEnabled,
                                 SegmentRules = x.SegmentGroup.Rules
                                     .Select(r => new SegmentRuleDto
                                     {

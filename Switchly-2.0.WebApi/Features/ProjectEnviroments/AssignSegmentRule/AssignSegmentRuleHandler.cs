@@ -10,7 +10,10 @@ namespace Switchly_2._0.WebApi.Features.ProjectEnviroments.AssignSegmentRule;
 
 public sealed record AssignSegmentRuleCommand(
     Guid FeatureFlagEnvironmentId,
-    Guid SegmentGroupId
+    Guid SegmentGroupId,
+    RolloutKind RolloutKind,
+    int RolloutPercentage,
+    int Priority
 ) : IRequest<Response<Guid>>;
 
 public sealed class AssignSegmentRuleHandler(
@@ -59,7 +62,8 @@ public sealed class AssignSegmentRuleHandler(
         if (exists)
             return Response<Guid>.Fail("Bu segment zaten bu environment'a atanmış.");
 
-        // 5) Create targeting (MVP defaults)
+        // 5) Create targeting — rollout alanları request'ten, IsEnabled default true
+        var pct = Math.Clamp(request.RolloutPercentage, 0, 100);
         var entity = new FeatureFlagSegmentTargeting
         {
             Id = Guid.NewGuid(),
@@ -67,9 +71,9 @@ public sealed class AssignSegmentRuleHandler(
             SegmentGroupId = request.SegmentGroupId,
 
             IsEnabled = true,
-            RolloutKind = RolloutKind.AllUsers,
-            RolloutPercentage = 100,
-            Priority = 0,
+            RolloutKind = request.RolloutKind,
+            RolloutPercentage = pct,
+            Priority = request.Priority,
             CreatedAt = DateTimeOffset.UtcNow
         };
 

@@ -1,6 +1,7 @@
 using Carter;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Switchly_2._0.WebApi.Models.Enums;
 
 namespace Switchly_2._0.WebApi.Features.ProjectEnviroments.AssignSegmentRule;
 
@@ -8,7 +9,10 @@ public sealed class AssignSegmentRuleEndpoint : CarterModule
 {
     public sealed record AssignSegmentRuleBody(
         Guid SegmentGroupId,
-        Guid FeatureFlagEnvironmentId
+        Guid FeatureFlagEnvironmentId,
+        RolloutKind? RolloutKind,
+        int? RolloutPercentage,
+        int? Priority
     );
 
     public override void AddRoutes(IEndpointRouteBuilder app)
@@ -21,7 +25,10 @@ public sealed class AssignSegmentRuleEndpoint : CarterModule
                 {
                     var cmd = new AssignSegmentRuleCommand(
                         body.FeatureFlagEnvironmentId,
-                        body.SegmentGroupId
+                        body.SegmentGroupId,
+                        body.RolloutKind ?? Models.Enums.RolloutKind.AllUsers,
+                        body.RolloutPercentage ?? 100,
+                        body.Priority ?? 0
                     );
 
                     var res = await mediator.Send(cmd, ct);
