@@ -33,6 +33,7 @@ public sealed record TargetingRulesetDto(
     bool IsEnabled,
     RolloutKind RolloutKind,
     int RolloutPercentage,
+    LogicalOperator LogicalOperator,    // segment grup içi rule birleşimi (And/Or)
     List<RuleRulesetDto> Rules
 );
 
@@ -112,6 +113,7 @@ public sealed class GetRulesetHandler(SwitchlyDbContext context)
                         t.IsEnabled,
                         t.RolloutKind,
                         t.RolloutPercentage,
+                        t.SegmentGroup.LogicalOperator,
                         t.SegmentGroup.Rules
                             .Where(r => r.NodeType == SegmentNodeType.Condition
                                         && r.TraitKey != null

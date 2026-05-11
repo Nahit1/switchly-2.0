@@ -55,6 +55,7 @@ public sealed record SegmentGroupsDto
     public string Name { get; set; } = default!;
     public string Key { get; set; } = default!;
     public string? Description { get; set; }
+    public LogicalOperator LogicalOperator { get; set; }          // segment grup içi rule birleşim mantığı
     public RolloutKind RolloutKind { get; set; }                  // targeting'in kendi rollout'u
     public int RolloutPercentage { get; set; }
     public int Priority { get; set; }
@@ -113,6 +114,7 @@ public class GetByProjectCommandHandler(SwitchlyDbContext context, IUserContext 
                                 Name = x.SegmentGroup.Name,
                                 Key = x.SegmentGroup.Key,
                                 Description = x.SegmentGroup.Description,
+                                LogicalOperator = x.SegmentGroup.LogicalOperator,
                                 RolloutKind = x.RolloutKind,
                                 RolloutPercentage = x.RolloutPercentage,
                                 Priority = x.Priority,

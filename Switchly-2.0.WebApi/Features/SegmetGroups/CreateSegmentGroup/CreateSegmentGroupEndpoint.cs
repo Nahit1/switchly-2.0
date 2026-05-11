@@ -1,6 +1,7 @@
 using Carter;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Switchly_2._0.WebApi.Models.Enums;
 
 namespace Switchly_2._0.WebApi.Features.SegmetRules.CreateSegmentRules;
 
@@ -10,7 +11,8 @@ public sealed class CreateSegmentGroupEndpoint : CarterModule
         Guid OrganizationId,
         string Key,
         string Name,
-        string? Description
+        string? Description,
+        LogicalOperator? LogicalOperator
     );
 
     public override void AddRoutes(IEndpointRouteBuilder app)
@@ -26,7 +28,8 @@ public sealed class CreateSegmentGroupEndpoint : CarterModule
                         body.OrganizationId,
                         body.Key,
                         body.Name,
-                        body.Description
+                        body.Description,
+                        body.LogicalOperator ?? Models.Enums.LogicalOperator.And
                     );
 
                     var res = await mediator.Send(cmd, ct);

@@ -21,6 +21,7 @@ public sealed record Targeting(
     bool IsEnabled,
     RolloutKind RolloutKind,
     int RolloutPercentage,
+    LogicalOperator LogicalOperator,
     IReadOnlyList<SegmentRule> Rules
 );
 

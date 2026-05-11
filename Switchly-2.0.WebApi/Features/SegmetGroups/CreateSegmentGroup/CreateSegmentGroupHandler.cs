@@ -4,13 +4,15 @@ using Switchly_2._0.WebApi.Auth;
 using Switchly_2._0.WebApi.Context;
 using Switchly_2._0.WebApi.Entities;
 using Switchly_2._0.WebApi.Models.Common;
+using Switchly_2._0.WebApi.Models.Enums;
 
 namespace Switchly_2._0.WebApi.Features.SegmetRules.CreateSegmentRules;
 public sealed record CreateSegmentGroupCommand(
     Guid OrganizationId,
     string Key,
     string Name,
-    string? Description
+    string? Description,
+    LogicalOperator LogicalOperator
 ) : IRequest<Response<Guid>>;
 
 public sealed class CreateSegmentGroupHandler(
@@ -51,6 +53,7 @@ public sealed class CreateSegmentGroupHandler(
             Key = key,
             Name = name,
             Description = request.Description?.Trim(),
+            LogicalOperator = request.LogicalOperator,
             CreatedAt = DateTimeOffset.UtcNow
         };
 

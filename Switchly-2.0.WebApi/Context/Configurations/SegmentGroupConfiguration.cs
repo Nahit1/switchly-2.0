@@ -21,6 +21,9 @@ public class SegmentGroupConfiguration:IEntityTypeConfiguration<SegmentGroup>
         builder.HasIndex(x => new { x.OrganizationId, x.Key })
             .IsUnique();
 
+        builder.Property(x => x.LogicalOperator)
+            .HasDefaultValue(Models.Enums.LogicalOperator.And);
+
         builder.HasOne(x => x.Organization)
             .WithMany(o => o.SegmentGroups)
             .HasForeignKey(x => x.OrganizationId)

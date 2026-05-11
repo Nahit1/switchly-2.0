@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Switchly_2._0.WebApi.Auth;
 using Switchly_2._0.WebApi.Context;
 using Switchly_2._0.WebApi.Models.Common;
+using Switchly_2._0.WebApi.Models.Enums;
 
 namespace Switchly_2._0.WebApi.Features.SegmetGroups.GetAllSegmentGroups;
 
@@ -16,6 +17,7 @@ public sealed record SegmentGroupDto
     public string Key { get; set; } = default!;
     public string Name { get; set; } = default!;
     public string? Description { get; set; }
+    public LogicalOperator LogicalOperator { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
 }
 
@@ -44,6 +46,7 @@ public sealed class GetAllSegmentGroupHandler(
                 Key = x.Key,
                 Name = x.Name,
                 Description = x.Description,
+                LogicalOperator = x.LogicalOperator,
                 CreatedAt = x.CreatedAt
             })
             .ToListAsync(ct);

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Switchly_2._0.WebApi.Context;
@@ -11,9 +12,11 @@ using Switchly_2._0.WebApi.Context;
 namespace Switchly_2._0.WebApi.Context.Migrations
 {
     [DbContext(typeof(SwitchlyDbContext))]
-    partial class SwitchlyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260510125730_AddLogicalOperatorToSegmentGroup")]
+    partial class AddLogicalOperatorToSegmentGroup
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

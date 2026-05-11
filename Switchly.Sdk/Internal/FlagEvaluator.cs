@@ -22,7 +22,7 @@ internal sealed class FlagEvaluator
                               .Where(x => x.IsEnabled)
                               .OrderByDescending(x => x.Priority))
         {
-            if (RulesAllMatch(t.Rules, traits))
+            if (RulesMatch(t.Rules, traits, t.LogicalOperator))
                 return ApplyRollout(t.RolloutKind, t.RolloutPercentage, flag.Key, userKey);
         }
 
@@ -32,20 +32,26 @@ internal sealed class FlagEvaluator
 
     private static readonly Dictionary<string, string> EmptyTraits = new(0);
 
-    private static bool RulesAllMatch(
+    private static bool RulesMatch(
         IReadOnlyList<SegmentRule> rules,
-        IReadOnlyDictionary<string, string> traits)
+        IReadOnlyDictionary<string, string> traits,
+        LogicalOperator op)
     {
         if (rules.Count == 0) return false;
 
-        foreach (var r in rules)
-        {
-            if (!traits.TryGetValue(r.TraitKey, out var traitValue))
-                return false;
-            if (!CompareTrait(traitValue, r.Operator, r.Value ?? string.Empty))
-                return false;
-        }
-        return true;
+        return op == LogicalOperator.Or
+            ? rules.Any(r => SingleRuleMatches(r, traits))
+            : rules.All(r => SingleRuleMatches(r, traits));
+        // Not bilerek MVP'de işlenmiyor — segment'ten Group/Not akışı yok.
+    }
+
+    private static bool SingleRuleMatches(
+        SegmentRule r,
+        IReadOnlyDictionary<string, string> traits)
+    {
+        if (!traits.TryGetValue(r.TraitKey, out var traitValue))
+            return false;
+        return CompareTrait(traitValue, r.Operator, r.Value ?? string.Empty);
     }
 
     private static bool ApplyRollout(
