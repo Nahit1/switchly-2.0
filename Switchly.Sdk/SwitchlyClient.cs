@@ -35,21 +35,34 @@ public sealed class SwitchlyClient
     /// <summary>
     /// Verilen flag'in bu user için açık olup olmadığını local'de değerlendirir.
     /// Network çağrısı yok; cache henüz dolmadıysa veya flag bulunamazsa false döner.
+    /// Multivariant flag'lerde "bir variant atandı mı?" anlamına gelir; hangi variant
+    /// olduğunu öğrenmek için <see cref="GetVariant"/> kullan.
     /// </summary>
     /// <param name="flagKey">Flag'in slug-style key'i (Id değil).</param>
-    /// <param name="userKey">User'ı tanımlayan stable string. Percentage rollout için ŞART
+    /// <param name="userKey">User'ı tanımlayan stable string. Percentage/variant rollout için ŞART
     /// — aynı user her zaman aynı bucket'a düşer. AllUsers/Off rollout için gereksiz.</param>
     /// <param name="traits">Segment rule eşleştirmesi için key/value attribute'ları (örn. country, plan).</param>
     public bool IsOn(
         string flagKey,
         string? userKey = null,
         IReadOnlyDictionary<string, string>? traits = null)
+        => GetVariant(flagKey, userKey, traits).IsOn;
+
+    /// <summary>
+    /// Verilen flag için bu user'a hangi variant atandığını döner.
+    /// Boolean flag'de VariantKey null; sadece <see cref="EvaluationResult.IsOn"/> anlamlı.
+    /// Multivariant flag'de IsOn=true ise VariantKey ve (varsa) PayloadJson dolu döner.
+    /// </summary>
+    public EvaluationResult GetVariant(
+        string flagKey,
+        string? userKey = null,
+        IReadOnlyDictionary<string, string>? traits = null)
     {
         var ruleset = _cache.Current;
-        if (ruleset is null) return false;
+        if (ruleset is null) return EvaluationResult.Off;
 
         var flag = ruleset.Flags.FirstOrDefault(f => f.Key == flagKey);
-        if (flag is null) return false;
+        if (flag is null) return EvaluationResult.Off;
 
         return _evaluator.Evaluate(flag, userKey, traits);
     }

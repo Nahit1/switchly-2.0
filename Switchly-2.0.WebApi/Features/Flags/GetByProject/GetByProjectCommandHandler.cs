@@ -34,7 +34,15 @@ public sealed record GetFlagVariantDto
     public string Key { get; set; } = default!;
     public string? Name { get; set; }
     public string? PayloadJson { get; set; }
+    public int SortOrder { get; set; }
 }
+
+public sealed record VariantWeightDto
+{
+    public Guid VariantId { get; set; }
+    public int Weight { get; set; }
+}
+
 public sealed record GetFlagEnvironmentDto
 {
     public Guid ProjectEnvironmentId { get; set; }
@@ -45,7 +53,8 @@ public sealed record GetFlagEnvironmentDto
     public bool IsEnabled { get; set; }
     public RolloutKind DefaultRolloutKind { get; set; }
     public int DefaultRolloutPercentage { get; set; }
-    
+
+    public List<VariantWeightDto> VariantWeights { get; set; } = new();
     public List<SegmentGroupsDto> SegmentGroups { get; set; } = new();
 }
 
@@ -60,6 +69,7 @@ public sealed record SegmentGroupsDto
     public int RolloutPercentage { get; set; }
     public int Priority { get; set; }
     public bool IsEnabled { get; set; }
+    public List<VariantWeightDto> VariantWeights { get; set; } = new();
     public ICollection<SegmentRuleDto> SegmentRules { get; set; }
 }
 
@@ -106,6 +116,12 @@ public class GetByProjectCommandHandler(SwitchlyDbContext context, IUserContext 
                         DefaultRolloutKind = fe.DefaultRolloutKind,
                         DefaultRolloutPercentage = fe.DefaultRolloutPercentage,
                         FeatureFlagEnvironmentId = fe.Id,
+                        VariantWeights = fe.VariantWeights
+                            .Select(w => new VariantWeightDto
+                            {
+                                VariantId = w.VariantId,
+                                Weight = w.Weight
+                            }).ToList(),
                         SegmentGroups = fe.SegmentTargetings
                             .OrderByDescending(x => x.Priority)
                             .Select(x=>new SegmentGroupsDto
@@ -119,6 +135,12 @@ public class GetByProjectCommandHandler(SwitchlyDbContext context, IUserContext 
                                 RolloutPercentage = x.RolloutPercentage,
                                 Priority = x.Priority,
                                 IsEnabled = x.IsEnabled,
+                                VariantWeights = x.VariantWeights
+                                    .Select(w => new VariantWeightDto
+                                    {
+                                        VariantId = w.VariantId,
+                                        Weight = w.Weight
+                                    }).ToList(),
                                 SegmentRules = x.SegmentGroup.Rules
                                     .Select(r => new SegmentRuleDto
                                     {
@@ -127,16 +149,17 @@ public class GetByProjectCommandHandler(SwitchlyDbContext context, IUserContext 
                                         Value = r.Value,
                                     }).ToList()
                             }).ToList()
-                        
+
                     }).ToList(),
                 Variants = f.Variants
-                    .OrderBy(v => v.Key)
+                    .OrderBy(v => v.SortOrder)
                     .Select(v => new GetFlagVariantDto
                     {
                         Id = v.Id,
                         Key = v.Key,
                         Name = v.Name,
-                        PayloadJson = v.PayloadJson
+                        PayloadJson = v.PayloadJson,
+                        SortOrder = v.SortOrder
                     })
                     .ToList(),
             })

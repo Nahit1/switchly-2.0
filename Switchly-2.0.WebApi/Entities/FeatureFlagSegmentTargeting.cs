@@ -17,4 +17,7 @@ public class FeatureFlagSegmentTargeting
     public int Priority { get; set; }               // segment çakışmalarında öncelik
     public bool IsEnabled { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
+
+    // Multivariant flag'ler için bu targeting eşleştiğinde uygulanacak variant dağılımı. Boolean flag'lerde boş kalır.
+    public ICollection<FeatureFlagSegmentTargetingVariantWeight> VariantWeights { get; set; } = new List<FeatureFlagSegmentTargetingVariantWeight>();
 }

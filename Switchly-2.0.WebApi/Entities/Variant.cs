@@ -11,4 +11,7 @@ public class Variant
     public string? PayloadJson { get; set; }      // JSONB karşılığı string, EF tarafında jsonb mapleriz
     public int SortOrder { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
+
+    public ICollection<FeatureFlagEnvironmentVariantWeight> EnvironmentWeights { get; set; } = new List<FeatureFlagEnvironmentVariantWeight>();
+    public ICollection<FeatureFlagSegmentTargetingVariantWeight> TargetingWeights { get; set; } = new List<FeatureFlagSegmentTargetingVariantWeight>();
 }

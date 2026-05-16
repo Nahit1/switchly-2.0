@@ -18,6 +18,8 @@ public class SwitchlyDbContext(DbContextOptions<SwitchlyDbContext> opts):DbConte
     public DbSet<FeatureFlag> FeatureFlags => Set<FeatureFlag>();
     public DbSet<FeatureFlagEnvironment> FeatureFlagEnvironments => Set<FeatureFlagEnvironment>();
     public DbSet<FeatureFlagSegmentTargeting> FeatureFlagSegmentTargetings => Set<FeatureFlagSegmentTargeting>();
+    public DbSet<FeatureFlagEnvironmentVariantWeight> FeatureFlagEnvironmentVariantWeights => Set<FeatureFlagEnvironmentVariantWeight>();
+    public DbSet<FeatureFlagSegmentTargetingVariantWeight> FeatureFlagSegmentTargetingVariantWeights => Set<FeatureFlagSegmentTargetingVariantWeight>();
     public DbSet<SegmentGroup> SegmentGroups => Set<SegmentGroup>();
     public DbSet<SegmentRule> SegmentRules => Set<SegmentRule>();
     

@@ -32,6 +32,15 @@
       - "8080:8080"
     volumes:
       - /tmp/backend-log.xml:/app/backend-log.xml
+  jaeger:
+    image: jaegertracing/all-in-one:1.57
+    container_name: jaeger
+    restart: always
+    ports:
+      - "16686:16686"   # UI
+      - "4317:4317"     # OTLP gRPC
+      - "4318:4318"     # OTLP HTTP
+      - "6831:6831/udp" # agent
 
 volumes:
   postgres_switchly_db:

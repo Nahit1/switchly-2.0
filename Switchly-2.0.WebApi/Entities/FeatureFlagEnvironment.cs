@@ -17,6 +17,9 @@ public class FeatureFlagEnvironment
     public int DefaultRolloutPercentage { get; set; }  // 0–100
 
     public DateTimeOffset UpdatedAt { get; set; }
-    
+
     public ICollection<FeatureFlagSegmentTargeting> SegmentTargetings { get; set; } = new List<FeatureFlagSegmentTargeting>();
+
+    // Multivariant flag'ler için env-level default variant dağılımı. Boolean flag'lerde boş kalır.
+    public ICollection<FeatureFlagEnvironmentVariantWeight> VariantWeights { get; set; } = new List<FeatureFlagEnvironmentVariantWeight>();
 }

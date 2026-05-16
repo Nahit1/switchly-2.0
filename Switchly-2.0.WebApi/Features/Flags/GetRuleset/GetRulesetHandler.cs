@@ -22,11 +22,24 @@ public sealed record EnvironmentRulesetDto(Guid Id, string Key);
 public sealed record FlagRulesetDto(
     Guid Id,
     string Key,
+    FeatureFlagType Type,
     bool EnvEnabled,
     RolloutKind DefaultRolloutKind,
     int DefaultRolloutPercentage,
+    List<VariantRulesetDto> Variants,
+    List<VariantWeightRulesetDto> EnvVariantWeights,
     List<TargetingRulesetDto> Targetings
 );
+
+public sealed record VariantRulesetDto(
+    Guid Id,
+    string Key,
+    string? Name,
+    string? PayloadJson,
+    int SortOrder
+);
+
+public sealed record VariantWeightRulesetDto(Guid VariantId, int Weight);
 
 public sealed record TargetingRulesetDto(
     int Priority,
@@ -34,7 +47,8 @@ public sealed record TargetingRulesetDto(
     RolloutKind RolloutKind,
     int RolloutPercentage,
     LogicalOperator LogicalOperator,    // segment grup içi rule birleşimi (And/Or)
-    List<RuleRulesetDto> Rules
+    List<RuleRulesetDto> Rules,
+    List<VariantWeightRulesetDto> VariantWeights
 );
 
 public sealed record RuleRulesetDto(
@@ -87,10 +101,6 @@ public sealed class GetRulesetHandler(SwitchlyDbContext context)
         if (env is null)
             return Response<RulesetDto>.Fail("Environment bulunamadı.");
 
-        // FeatureFlagEnvironments'tan başlıyoruz — IsEnabled doğrudan bu tabloda,
-        // tek-aşamalı projection EF Core 9'un nested FirstOrDefault subquery'sinden
-        // daha güvenilir SQL üretiyor.
-        // Sadece Condition tipi rules dönülür; Group node'ları MVP eval'i tarafından ele alınmıyor.
         var envId = env.Id;
         var projectId = project.Id;
 
@@ -103,9 +113,18 @@ public sealed class GetRulesetHandler(SwitchlyDbContext context)
             .Select(fe => new FlagRulesetDto(
                 fe.FeatureFlag.Id,
                 fe.FeatureFlag.Key,
+                fe.FeatureFlag.Type,
                 fe.IsEnabled,
                 fe.DefaultRolloutKind,
                 fe.DefaultRolloutPercentage,
+                fe.FeatureFlag.Variants
+                    .OrderBy(v => v.SortOrder)
+                    .Select(v => new VariantRulesetDto(
+                        v.Id, v.Key, v.Name, v.PayloadJson, v.SortOrder))
+                    .ToList(),
+                fe.VariantWeights
+                    .Select(w => new VariantWeightRulesetDto(w.VariantId, w.Weight))
+                    .ToList(),
                 fe.SegmentTargetings
                     .OrderByDescending(t => t.Priority)
                     .Select(t => new TargetingRulesetDto(
@@ -125,6 +144,9 @@ public sealed class GetRulesetHandler(SwitchlyDbContext context)
                                 r.Value,
                                 r.ValueType
                             ))
+                            .ToList(),
+                        t.VariantWeights
+                            .Select(w => new VariantWeightRulesetDto(w.VariantId, w.Weight))
                             .ToList()
                     ))
                     .ToList()
