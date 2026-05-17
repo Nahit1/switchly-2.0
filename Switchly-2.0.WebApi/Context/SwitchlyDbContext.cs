@@ -22,6 +22,8 @@ public class SwitchlyDbContext(DbContextOptions<SwitchlyDbContext> opts):DbConte
     public DbSet<FeatureFlagSegmentTargetingVariantWeight> FeatureFlagSegmentTargetingVariantWeights => Set<FeatureFlagSegmentTargetingVariantWeight>();
     public DbSet<SegmentGroup> SegmentGroups => Set<SegmentGroup>();
     public DbSet<SegmentRule> SegmentRules => Set<SegmentRule>();
+    public DbSet<FlagExposureEvent> FlagExposureEvents => Set<FlagExposureEvent>();
+    public DbSet<ConversionEvent> ConversionEvents => Set<ConversionEvent>();
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

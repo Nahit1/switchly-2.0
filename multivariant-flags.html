@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Switchly — Multivariant Flag Desteği</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  :root {
+    --bg: #0d1117;
+    --bg-elev: #161b22;
+    --bg-code: #1c2128;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text-mute: #8b949e;
+    --accent: #58a6ff;
+    --green: #3fb950;
+    --orange: #d29922;
+    --red: #f85149;
+    --purple: #bc8cff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font: 15px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 40px 32px 80px; }
+  header { border-bottom: 1px solid var(--border); padding-bottom: 24px; margin-bottom: 32px; }
+  header h1 { margin: 0 0 8px; font-size: 28px; font-weight: 600; }
+  header .meta { color: var(--text-mute); font-size: 13px; }
+  header .meta .pill {
+    display: inline-block; padding: 2px 8px; border-radius: 999px;
+    background: var(--bg-elev); border: 1px solid var(--border); margin-left: 6px;
+  }
+  h2 {
+    margin: 48px 0 16px; font-size: 22px; font-weight: 600;
+    padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  }
+  h3 { margin: 28px 0 12px; font-size: 17px; font-weight: 600; color: var(--accent); }
+  h4 { margin: 18px 0 8px; font-size: 14px; font-weight: 600; color: var(--text-mute); text-transform: uppercase; letter-spacing: 0.5px; }
+  p { margin: 8px 0; }
+  ul, ol { padding-left: 22px; }
+  li { margin: 4px 0; }
+  code {
+    font-family: "SF Mono", Menlo, Monaco, Consolas, monospace;
+    font-size: 0.9em;
+    background: var(--bg-code);
+    padding: 1px 6px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+  }
+  pre {
+    background: var(--bg-code);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    overflow-x: auto;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  pre code { background: transparent; border: 0; padding: 0; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 14px;
+  }
+  th, td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+    vertical-align: top;
+  }
+  th { color: var(--text-mute); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+  .method { font-weight: 600; font-family: "SF Mono", monospace; font-size: 12px; }
+  .m-POST   { color: var(--green); }
+  .m-GET    { color: var(--accent); }
+  .m-PUT    { color: var(--orange); }
+  .m-PATCH  { color: var(--purple); }
+  .m-DELETE { color: var(--red); }
+  .path { font-family: "SF Mono", monospace; font-size: 13px; color: var(--text); }
+  .badge {
+    display: inline-block; padding: 1px 6px; border-radius: 4px;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.3px;
+    border: 1px solid;
+  }
+  .b-new   { color: var(--green);  border-color: var(--green);  background: rgba(63,185,80,0.1); }
+  .b-mod   { color: var(--orange); border-color: var(--orange); background: rgba(210,153,34,0.1); }
+  .callout {
+    border-left: 3px solid var(--accent);
+    background: rgba(88,166,255,0.05);
+    padding: 12px 16px;
+    border-radius: 0 6px 6px 0;
+    margin: 16px 0;
+  }
+  .callout.warn { border-left-color: var(--orange); background: rgba(210,153,34,0.05); }
+  .callout strong { color: var(--accent); }
+  .callout.warn strong { color: var(--orange); }
+  .mermaid { background: var(--bg-elev); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin: 16px 0; text-align: center; }
+  nav.toc {
+    background: var(--bg-elev); border: 1px solid var(--border);
+    border-radius: 8px; padding: 16px 20px; margin: 24px 0 40px;
+  }
+  nav.toc ol { margin: 0; padding-left: 20px; }
+  nav.toc a { color: var(--accent); text-decoration: none; }
+  nav.toc a:hover { text-decoration: underline; }
+  .phase-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 16px 0; }
+  .phase {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .phase .label { font-size: 11px; color: var(--text-mute); text-transform: uppercase; letter-spacing: 0.5px; }
+  .phase .title { font-size: 15px; font-weight: 600; margin: 4px 0 6px; }
+  .phase .desc { font-size: 13px; color: var(--text-mute); }
+  hr { border: 0; border-top: 1px solid var(--border); margin: 32px 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Switchly — Multivariant Flag Desteği</h1>
+  <div class="meta">
+    Implementation report
+    <span class="pill">2026-05-11</span>
+    <span class="pill">.NET 9 · PostgreSQL · Carter + MediatR</span>
+  </div>
+</header>
+
+<nav class="toc">
+  <strong>İçindekiler</strong>
+  <ol>
+    <li><a href="#overview">Genel Bakış</a></li>
+    <li><a href="#why">Neden Multivariant?</a></li>
+    <li><a href="#schema">Veri Modeli (ER)</a></li>
+    <li><a href="#schema-detail">Tablo Detayları</a></li>
+    <li><a href="#endpoints">API Endpoint'leri</a></li>
+    <li><a href="#bucket">Variant Bucket Algoritması</a></li>
+    <li><a href="#eval-flow">Evaluate Akışı</a></li>
+    <li><a href="#e2e">E2E Örnek: A/B Test + Kill Switch</a></li>
+    <li><a href="#sdk">SDK Tarafı</a></li>
+    <li><a href="#decisions">Tasarım Kararları</a></li>
+  </ol>
+</nav>
+
+<section id="overview">
+<h2>1. Genel Bakış</h2>
+<p>
+  Switchly daha önce yalnızca <strong>Boolean</strong> flag desteklemiyordu — bir feature açık/kapalı.
+  Bu çalışmada <strong>Multivariant</strong> (çoklu varyant, A/B test, kademeli rollout) desteğini uçtan uca ekledik:
+  schema, create flow, weight yönetimi, evaluate, SDK ve variant CRUD.
+</p>
+
+<div class="phase-grid">
+  <div class="phase">
+    <div class="label">Phase 1</div>
+    <div class="title">Schema + Migration</div>
+    <div class="desc">2 yeni weight tablosu, navigation property'ler, EF Core migration</div>
+  </div>
+  <div class="phase">
+    <div class="label">Phase 2</div>
+    <div class="title">CreateFlag + Variants</div>
+    <div class="desc">CreateFlag artık Variants array kabul ediyor; Multivariant için min 2 zorunlu</div>
+  </div>
+  <div class="phase">
+    <div class="label">Phase 3</div>
+    <div class="title">Weight Yönetimi</div>
+    <div class="desc">Env-level ve targeting-level variant ağırlıklarını set eden 2 endpoint</div>
+  </div>
+  <div class="phase">
+    <div class="label">Phase 4</div>
+    <div class="title">Evaluate + SDK</div>
+    <div class="desc">EvaluateFlag variant döner; SDK <code>GetVariant</code> API; deterministik bucket</div>
+  </div>
+  <div class="phase">
+    <div class="label">Phase 5</div>
+    <div class="title">Variant CRUD</div>
+    <div class="desc">Add/Update/Delete endpoint'leri — UI variant yönetimi için</div>
+  </div>
+</div>
+</section>
+
+<section id="why">
+<h2>2. Neden Multivariant?</h2>
+<p>İki temel use case ayrımı:</p>
+<table>
+  <tr><th width="180">Senaryo</th><th>Doğru tip</th><th>Neden</th></tr>
+  <tr>
+    <td><strong>Yeni feature</strong> (öncesi yok)</td>
+    <td>Boolean</td>
+    <td>Açık/kapalı yeterli; kademeli rollout (RolloutPercentage) ile kontrol edilir, sorun çıkarsa kapatılır.</td>
+  </tr>
+  <tr>
+    <td><strong>Var olanı değiştiriyorsun</strong> (eskisi ile karşılaştırma)</td>
+    <td>Multivariant</td>
+    <td>Kontrol grubu zorunlu. Boolean'da kullanıcıya "yeni mi eski mi gördü" etiketi yok → analytics segmentlemesi mümkün değil. Multivariant'ta her kullanıcıya <code>variant_key</code> atanır, conversion / error rate karşılaştırılır.</td>
+  </tr>
+  <tr>
+    <td><strong>Aynı anda 3+ alternatif</strong></td>
+    <td>Multivariant</td>
+    <td>Algoritma karşılaştırması (algo_v1 / algo_v2 / algo_v3). İki Boolean flag mantıksal olarak yetersiz — kullanıcı her ikisine de düşebilir.</td>
+  </tr>
+</table>
+
+<div class="callout">
+  <strong>CI/CD kill-switch senaryosu:</strong> 2 variant ile yayına aldığın feature
+  (örn. <code>treatment</code>) prod'da hata almaya başlarsa, tek <code>PUT</code> ile
+  <code>treatment: 0, control: 100</code> set ederek anında geri dön. Ağırlık tabloları
+  bu kullanım için optimize edildi.
+</div>
+</section>
+
+<section id="schema">
+<h2>3. Veri Modeli</h2>
+<p>Mevcut hiyerarşi: <code>Organization → Project → ProjectEnvironment → FeatureFlag → FeatureFlagEnvironment → FeatureFlagSegmentTargeting</code>.
+  Bu çalışmada eklenen iki tablo <span class="badge b-new">YENİ</span>: variant ağırlıklarını <strong>env-level</strong> ve <strong>targeting-level</strong> taşıyor.</p>
+
+<div class="mermaid">
+erDiagram
+  FeatureFlag ||--o{ Variant : "has variants"
+  FeatureFlag ||--o{ FeatureFlagEnvironment : "fan-out"
+  FeatureFlagEnvironment ||--o{ FeatureFlagSegmentTargeting : "matches segments"
+  FeatureFlagEnvironment ||--o{ FeatureFlagEnvironmentVariantWeight : "default split (NEW)"
+  FeatureFlagSegmentTargeting ||--o{ FeatureFlagSegmentTargetingVariantWeight : "targeted split (NEW)"
+  Variant ||--o{ FeatureFlagEnvironmentVariantWeight : "weighted in env"
+  Variant ||--o{ FeatureFlagSegmentTargetingVariantWeight : "weighted in targeting"
+  SegmentGroup ||--o{ FeatureFlagSegmentTargeting : "applied to"
+  SegmentGroup ||--o{ SegmentRule : "has rules"
+
+  FeatureFlag {
+    Guid Id PK
+    Guid ProjectId FK
+    string Key
+    FeatureFlagType Type "Boolean|Multivariant|Config"
+  }
+  Variant {
+    Guid Id PK
+    Guid FeatureFlagId FK
+    string Key
+    string Name
+    string PayloadJson
+    int SortOrder
+  }
+  FeatureFlagEnvironment {
+    Guid Id PK
+    Guid FeatureFlagId FK
+    Guid ProjectEnvironmentId FK
+    bool IsEnabled
+    RolloutKind DefaultRolloutKind
+    int DefaultRolloutPercentage
+  }
+  FeatureFlagSegmentTargeting {
+    Guid Id PK
+    Guid FeatureFlagEnvironmentId FK
+    Guid SegmentGroupId FK
+    int Priority
+    bool IsEnabled
+    RolloutKind RolloutKind
+    int RolloutPercentage
+  }
+  FeatureFlagEnvironmentVariantWeight {
+    Guid Id PK
+    Guid FeatureFlagEnvironmentId FK
+    Guid VariantId FK
+    int Weight "0-100, sum=100"
+  }
+  FeatureFlagSegmentTargetingVariantWeight {
+    Guid Id PK
+    Guid FeatureFlagSegmentTargetingId FK
+    Guid VariantId FK
+    int Weight "0-100, sum=100"
+  }
+</div>
+</section>
+
+<section id="schema-detail">
+<h2>4. Tablo Detayları</h2>
+
+<h3>FeatureFlagEnvironmentVariantWeight <span class="badge b-new">YENİ</span></h3>
+<p>Bir <code>FeatureFlagEnvironment</code> içinde, hiçbir segment targeting eşleşmediğinde (yani fallback durumunda)
+  hangi variant'a kaç yüzde trafik gideceğini belirler.</p>
+<table>
+  <tr><th>Kolon</th><th>Tip</th><th>Açıklama</th></tr>
+  <tr><td>Id</td><td>Guid (PK)</td><td></td></tr>
+  <tr><td>FeatureFlagEnvironmentId</td><td>Guid (FK)</td><td>Cascade delete</td></tr>
+  <tr><td>VariantId</td><td>Guid (FK)</td><td>Cascade delete</td></tr>
+  <tr><td>Weight</td><td>int</td><td>0–100; bir env'deki tüm weight'lerin toplamı <strong>100</strong> olmak zorunda (app-side validate)</td></tr>
+</table>
+<p><strong>Unique index:</strong> <code>(FeatureFlagEnvironmentId, VariantId)</code> — aynı env'de aynı variant iki kez yer alamaz.</p>
+
+<h3>FeatureFlagSegmentTargetingVariantWeight <span class="badge b-new">YENİ</span></h3>
+<p>Bir segment targeting eşleştiğinde, eşleşen kullanıcılara hangi variant'ın kaç yüzde dağıtılacağını belirler.
+  Aynı şema, sadece parent farklı.</p>
+<table>
+  <tr><th>Kolon</th><th>Tip</th><th>Açıklama</th></tr>
+  <tr><td>Id</td><td>Guid (PK)</td><td></td></tr>
+  <tr><td>FeatureFlagSegmentTargetingId</td><td>Guid (FK)</td><td>Cascade delete</td></tr>
+  <tr><td>VariantId</td><td>Guid (FK)</td><td>Cascade delete</td></tr>
+  <tr><td>Weight</td><td>int</td><td>Aynı kural</td></tr>
+</table>
+
+<h3>Mevcut Tablolardaki Değişiklikler <span class="badge b-mod">DEĞİŞTİ</span></h3>
+<ul>
+  <li><code>FeatureFlagEnvironment</code> → <code>VariantWeights</code> navigation collection eklendi</li>
+  <li><code>FeatureFlagSegmentTargeting</code> → <code>VariantWeights</code> navigation collection eklendi</li>
+  <li><code>Variant</code> → <code>EnvironmentWeights</code> ve <code>TargetingWeights</code> reverse collection'ları eklendi</li>
+</ul>
+
+<h3>Migration</h3>
+<p>EF migration: <code>20260511090524_AddVariantWeightTables</code>.
+   Çalıştırmak için:</p>
+<pre><code>dotnet ef database update --project Switchly-2.0.WebApi</code></pre>
+</section>
+
+<section id="endpoints">
+<h2>5. API Endpoint'leri</h2>
+
+<h3>Flag &amp; Variant Yönetimi</h3>
+<table>
+  <tr><th width="80">Method</th><th>Path</th><th>Use case</th><th>Auth</th></tr>
+  <tr>
+    <td><span class="method m-POST">POST</span></td>
+    <td class="path">/api/flag/create</td>
+    <td><span class="badge b-mod">DEĞİŞTİ</span> Flag oluştur; Multivariant ise <code>variants[]</code> de gönder</td>
+    <td>JWT</td>
+  </tr>
+  <tr>
+    <td><span class="method m-POST">POST</span></td>
+    <td class="path">/api/flag/{flagId}/variants</td>
+    <td><span class="badge b-new">YENİ</span> Mevcut flag'e variant ekle</td>
+    <td>JWT</td>
+  </tr>
+  <tr>
+    <td><span class="method m-PATCH">PATCH</span></td>
+    <td class="path">/api/variant/{variantId}</td>
+    <td><span class="badge b-new">YENİ</span> Variant güncelle (Name + PayloadJson; <em>Key değişmez</em>)</td>
+    <td>JWT</td>
+  </tr>
+  <tr>
+    <td><span class="method m-DELETE">DELETE</span></td>
+    <td class="path">/api/variant/{variantId}</td>
+    <td><span class="badge b-new">YENİ</span> Variant sil (kalan ≥ 2 olmalı)</td>
+    <td>JWT</td>
+  </tr>
+</table>
+
+<h3>Weight Yönetimi</h3>
+<table>
+  <tr><th width="80">Method</th><th>Path</th><th>Use case</th><th>Auth</th></tr>
+  <tr>
+    <td><span class="method m-PUT">PUT</span></td>
+    <td class="path">/api/flag/environment/{flagEnvironmentId}/variant-weights</td>
+    <td><span class="badge b-new">YENİ</span> Env-level default variant dağılımı (replace-all, sum=100)</td>
+    <td>JWT</td>
+  </tr>
+  <tr>
+    <td><span class="method m-PUT">PUT</span></td>
+    <td class="path">/api/flag/targeting/{targetingId}/variant-weights</td>
+    <td><span class="badge b-new">YENİ</span> Targeting-level variant dağılımı (replace-all, sum=100)</td>
+    <td>JWT</td>
+  </tr>
+</table>
+
+<h3>Eval (Public — SDK ve dış sistemler için)</h3>
+<table>
+  <tr><th width="80">Method</th><th>Path</th><th>Use case</th><th>Auth</th></tr>
+  <tr>
+    <td><span class="method m-POST">POST</span></td>
+    <td class="path">/api/flag/evaluate</td>
+    <td><span class="badge b-mod">DEĞİŞTİ</span> Tek flag eval; artık <code>userKey</code> alıyor, <code>variantKey + payload</code> dönüyor</td>
+    <td>—</td>
+  </tr>
+  <tr>
+    <td><span class="method m-GET">GET</span></td>
+    <td class="path">/api/flag/ruleset</td>
+    <td><span class="badge b-mod">DEĞİŞTİ</span> Tüm env ruleset; variant + weight bilgisini surface ediyor</td>
+    <td>—</td>
+  </tr>
+</table>
+
+<h3>Request/Response Şablonları</h3>
+
+<h4>CreateFlag — Multivariant örneği</h4>
+<pre><code>POST /api/flag/create
+{
+  "organizationId": "...",
+  "projectId": "...",
+  "key": "checkout_redesign",
+  "name": "Checkout Redesign A/B",
+  "type": 2,                          // 1=Boolean, 2=Multivariant, 3=Config
+  "variants": [
+    { "key": "control",   "name": "Eski akış" },
+    { "key": "treatment", "name": "Yeni akış", "payloadJson": "{\"theme\":\"v2\"}" }
+  ]
+}</code></pre>
+<p><strong>Yan etkiler:</strong></p>
+<ul>
+  <li>Tüm env'ler için <code>FeatureFlagEnvironment</code> fan-out yaratılır.</li>
+  <li>Default env'e baseline weight: ilk variant=100, diğerleri=0 (Boolean'daki "default env=AllUsers/100" karşılığı).</li>
+  <li>Diğer env'lere weight set edilmez — kullanıcı <code>/variant-weights</code> ile belirler.</li>
+</ul>
+
+<h4>Set Env Variant Weights</h4>
+<pre><code>PUT /api/flag/environment/{flagEnvironmentId}/variant-weights
+{
+  "weights": [
+    { "variantId": "...", "weight": 50 },
+    { "variantId": "...", "weight": 50 }
+  ]
+}</code></pre>
+<p><strong>Validation:</strong> Liste boş değil, weight ∈ [0,100], variant ID'ler benzersiz ve bu flag'e ait, <strong>toplam=100</strong>, sadece Multivariant flag.</p>
+
+<h4>Evaluate</h4>
+<pre><code>POST /api/flag/evaluate
+{
+  "publicKey": "...",
+  "projectKey": "...",
+  "environmentKey": "prod",
+  "flagKey": "checkout_redesign",
+  "userKey": "user-42",
+  "traits": { "country": "TR", "plan": "premium" }
+}
+
+→ {
+  "success": true,
+  "data": {
+    "isEnabled": true,
+    "variantKey": "treatment",
+    "variantPayloadJson": "{\"theme\":\"v2\"}"
+  }
+}</code></pre>
+</section>
+
+<section id="bucket">
+<h2>6. Variant Bucket Algoritması</h2>
+<p>Server-side ve SDK-side eval'in <strong>aynı</strong> kullanıcıya <strong>aynı</strong> variant'ı atadığından emin olmak için
+  deterministik bir hash fonksiyonu kullanılır:</p>
+
+<pre><code>bucket = SHA256("{flagKey}:{userKey}").firstUInt32() % 100   // 0..99</code></pre>
+
+<p>Variant'lar <code>SortOrder</code>'a göre sıralı, cumulative weight hesaplanır:</p>
+
+<pre><code>cumulative = 0
+foreach variant in flag.variants ordered by SortOrder:
+    w = weights[variant.Id]
+    if w <= 0: continue
+    cumulative += w
+    if bucket < cumulative:
+        return variant
+return Off</code></pre>
+
+<h4>Örnek</h4>
+<table>
+  <tr><th>Variant</th><th>Weight</th><th>Cumulative</th><th>Bucket aralığı</th></tr>
+  <tr><td>control</td><td>30</td><td>30</td><td>0–29</td></tr>
+  <tr><td>treatment_a</td><td>50</td><td>80</td><td>30–79</td></tr>
+  <tr><td>treatment_b</td><td>20</td><td>100</td><td>80–99</td></tr>
+</table>
+
+<div class="callout warn">
+  <strong>userKey yoksa:</strong> Multivariant flag'de <code>userKey</code> null veya boş ise stable bucket
+  hesaplanamaz → safe-default <code>Off</code> döner (isEnabled=false, variantKey=null).
+  SDK ve server bu konuda hizalı.
+</div>
+
+<div class="callout">
+  <strong>Determinizm garantisi:</strong> Aynı <code>(flagKey, userKey)</code> → aynı bucket → aynı variant,
+  hem server hem SDK tarafında. SortOrder'ın stable olması bu yüzden önemli (Reorder operasyonu
+  bilinçli olarak MVP dışı bırakıldı).
+</div>
+</section>
+
+<section id="eval-flow">
+<h2>7. Evaluate Akışı</h2>
+
+<div class="mermaid">
+flowchart TD
+  A[Request: publicKey, projectKey, envKey, flagKey, userKey, traits] --> B{Flag bulundu mu?}
+  B -- Hayır --> Z1[Fail: 'Flag bulunamadı.']
+  B -- Evet --> C{Env IsEnabled?}
+  C -- Hayır --> Z2[Off: isEnabled=false]
+  C -- Evet --> D[Targetings — Priority desc<br/>IsEnabled=true olanlar]
+  D --> E{Eşleşen targeting var mı?<br/>SegmentGroup rules + LogicalOperator}
+  E -- Evet --> F{Flag Type?}
+  F -- Boolean --> G[ApplyRollout<br/>targeting.RolloutKind + Percentage]
+  F -- Multivariant --> H[PickVariant<br/>targeting.VariantWeights bucket]
+  E -- Hayır --> I{Flag Type?}
+  I -- Boolean --> J[ApplyRollout<br/>env.DefaultRolloutKind + Percentage]
+  I -- Multivariant --> K[PickVariant<br/>env.EnvVariantWeights bucket]
+  G --> R[Response]
+  H --> R
+  J --> R
+  K --> R
+</div>
+
+<p>SDK <code>FlagEvaluator</code> tam aynı akışı uygular — sadece veri kaynağı değişir
+  (server-side: DB snapshot, SDK-side: cache'lenmiş ruleset).</p>
+</section>
+
+<section id="e2e">
+<h2>8. E2E Örnek: A/B Test + Kill Switch</h2>
+
+<h4>1. Flag oluştur</h4>
+<pre><code>POST /api/flag/create
+{
+  "organizationId": "$ORG", "projectId": "$PROJ",
+  "key": "new_recommendations", "name": "New Recommendations",
+  "type": 2,
+  "variants": [
+    { "key": "control",   "name": "Eski algoritma" },
+    { "key": "treatment", "name": "Yeni algoritma", "payloadJson": "{\"model\":\"v2\"}" }
+  ]
+}
+→ { "data": { "id": "$FLAG_ID" } }</code></pre>
+
+<h4>2. Prod env'de 50/50 A/B test başlat</h4>
+<pre><code>PUT /api/flag/environment/$PROD_FLAG_ENV_ID/variant-weights
+{ "weights": [
+    { "variantId": "$CONTROL_ID",   "weight": 50 },
+    { "variantId": "$TREATMENT_ID", "weight": 50 }
+]}</code></pre>
+
+<h4>3. Backend / SDK eval</h4>
+<pre><code>// Server-side
+POST /api/flag/evaluate
+{ ..., "userKey": "user-42" }
+→ { isEnabled: true, variantKey: "treatment", variantPayloadJson: "{\"model\":\"v2\"}" }
+
+// SDK
+var result = client.GetVariant("new_recommendations", userKey: "user-42");
+// result.IsOn == true, result.VariantKey == "treatment"</code></pre>
+
+<h4>4. Kill switch — treatment hata alıyor, control'a kaç</h4>
+<pre><code>PUT /api/flag/environment/$PROD_FLAG_ENV_ID/variant-weights
+{ "weights": [
+    { "variantId": "$CONTROL_ID",   "weight": 100 },
+    { "variantId": "$TREATMENT_ID", "weight": 0 }
+]}</code></pre>
+<p>Bir sonraki eval'de (server-side anında, SDK pull interval kadar gecikmeli) tüm kullanıcılar <code>control</code>'a döner.
+   Treatment variant <strong>silinmez</strong> — incident sonrası tekrar açmak için weight'i artırmak yeterli.</p>
+</section>
+
+<section id="sdk">
+<h2>9. SDK Tarafı</h2>
+
+<h3>Yeni Public API</h3>
+<pre><code>// Backward-compat — Boolean ve Multivariant için "açık mı?"
+bool isOn = client.IsOn("checkout_redesign", userKey: "user-42", traits: ...);
+
+// Multivariant için detaylı
+EvaluationResult result = client.GetVariant("checkout_redesign", userKey: "user-42");
+if (result.IsOn) {
+    Console.WriteLine($"Variant: {result.VariantKey}");
+    Console.WriteLine($"Payload: {result.PayloadJson}");
+}</code></pre>
+
+<h3>İç Mimari</h3>
+<table>
+  <tr><th>Bileşen</th><th>Sorumluluk</th></tr>
+  <tr><td><code>RulesetFetcher</code></td><td><code>GET /api/flag/ruleset</code> HTTP poll</td></tr>
+  <tr><td><code>RulesetCache</code></td><td>In-memory atomic snapshot</td></tr>
+  <tr><td><code>BackgroundRefresher</code></td><td>Periyodik refresh (configurable interval)</td></tr>
+  <tr><td><code>FlagEvaluator</code></td><td>Pure eval logic — sync, lock-free, server-side ile birebir aynı bucket</td></tr>
+</table>
+
+<h3>Veri Akışı</h3>
+<div class="mermaid">
+sequenceDiagram
+  participant App as Uygulama
+  participant SDK as SwitchlyClient
+  participant Cache as RulesetCache
+  participant Refresher as BackgroundRefresher
+  participant API as Switchly API
+
+  Refresher->>API: GET /api/flag/ruleset (periyodik)
+  API-->>Refresher: { flags: [...variants, weights...] }
+  Refresher->>Cache: Set(ruleset)
+
+  App->>SDK: GetVariant("flag_x", "user-42")
+  SDK->>Cache: Current
+  Cache-->>SDK: ruleset snapshot
+  SDK->>SDK: Evaluate (in-memory, mikrosaniye)
+  SDK-->>App: EvaluationResult
+</div>
+</section>
+
+<section id="decisions">
+<h2>10. Tasarım Kararları</h2>
+
+<h3>Neden iki ayrı weight tablosu (env + targeting)?</h3>
+<p>Tek polimorfik tablo (<code>OwnerType, OwnerId, VariantId, Weight</code>) yerine iki ayrı tablo tercih edildi:</p>
+<ul>
+  <li>EF'de referential integrity (cascade delete) daha temiz</li>
+  <li>Index'ler daha selective</li>
+  <li>Query/projection'lar daha okunabilir</li>
+  <li>Polimorfik tablonun esneklik avantajı bu domain'de işe yaramıyor</li>
+</ul>
+
+<h3>Neden Boolean'ı 2 implicit variant'a (on/off) çevirmedik?</h3>
+<p>Unified design (LaunchDarkly tarzı) teorik olarak daha temiz olurdu — ama:</p>
+<ul>
+  <li>Mevcut Boolean davranışını ve SDK API'sini kırardı</li>
+  <li>Migration'da on/off variant'ları geriye dönük yaratmak gerekirdi</li>
+  <li>MVP hızını öldürürdü</li>
+</ul>
+<p>Pragmatik <strong>Yol A (paralel)</strong> seçildi: Boolean dokunulmadı, Multivariant ayrı kod yoluyla işliyor.
+  Evaluator'da tek bir <code>if (Type == Multivariant)</code> branch'i ile ayrım yapılıyor. Sonradan unify edilebilir.</p>
+
+<h3>Neden Variant.Key güncellenmiyor?</h3>
+<p>Analytics, log ve event sistemleri variant key'i <strong>stable identifier</strong> olarak kullanır.
+  Runtime'da rename, geçmiş analitik verisini kirletir. Rename istenirse: yeni variant ekle, weight'leri kaydır, eski variant'ı sil.</p>
+
+<h3>Neden Reorder yok?</h3>
+<p><code>SortOrder</code> bucket cumulative hesabını etkiler. Reorder etmek, aynı kullanıcının
+  farklı bir variant'a düşmesine sebep olur — A/B test sonuçlarını sapıtır.
+  MVP'de gerçek bir kullanım yoksa bu riski almıyoruz. UI yine de SortOrder'a saygı duyar.</p>
+
+<h3>Variant silinince weight'ler ne olur?</h3>
+<ul>
+  <li>FK cascade ile ilgili weight kayıtları otomatik düşer</li>
+  <li>Env/targeting'in weight toplamı 100'ün altına iner (invariant geçici olarak bozulur)</li>
+  <li>Evaluator <strong>graceful</strong>: missing variant 0 weight gibi davranır, bucket o kullanıcıyı bir sonraki variant'a yönlendirir; hiçbiri uymazsa <code>Off</code> döner</li>
+  <li>Kullanıcı kalan variant'lar için weight'leri yeniden set etmeli</li>
+</ul>
+
+<h3>Neden auto-redistribute yok?</h3>
+<p>Variant silindiğinde kalan weight'leri otomatik dağıtmak (örn. <code>treatment</code> %50 silindi → <code>control</code>'u %100 yap)
+  cazip gelebilir ama <strong>magic davranış</strong>. Açık API çağrısı (PUT weights) ile kullanıcının niyetini almak daha güvenli.</p>
+</section>
+
+<hr>
+<p style="color: var(--text-mute); font-size: 13px; text-align: center; margin-top: 40px;">
+  Switchly Multivariant Flag Desteği — 31 dosya, 5 phase, 0 build hatası.<br>
+  <code>dotnet ef database update --project Switchly-2.0.WebApi</code> ile yayına al.
+</p>
+
+</div>
+
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'dark',
+    themeVariables: {
+      darkMode: true,
+      background: '#161b22',
+      primaryColor: '#1c2128',
+      primaryTextColor: '#e6edf3',
+      primaryBorderColor: '#30363d',
+      lineColor: '#58a6ff',
+      secondaryColor: '#21262d',
+      tertiaryColor: '#0d1117'
+    }
+  });
+</script>
+</body>
+</html>

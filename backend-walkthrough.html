@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Switchly Backend — Multivariant Walk-through</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --bg-elev: #161b22;
+    --bg-code: #1c2128;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text-mute: #8b949e;
+    --accent: #58a6ff;
+    --green: #3fb950;
+    --orange: #d29922;
+    --red: #f85149;
+    --purple: #bc8cff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font: 15px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 40px 32px 80px; }
+  header { border-bottom: 1px solid var(--border); padding-bottom: 24px; margin-bottom: 32px; }
+  header h1 { margin: 0 0 8px; font-size: 28px; font-weight: 600; }
+  header .meta { color: var(--text-mute); font-size: 13px; }
+  header .meta .pill {
+    display: inline-block; padding: 2px 8px; border-radius: 999px;
+    background: var(--bg-elev); border: 1px solid var(--border); margin-left: 6px;
+  }
+  h2 {
+    margin: 56px 0 16px; font-size: 22px; font-weight: 600;
+    padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  }
+  h3 { margin: 32px 0 12px; font-size: 17px; font-weight: 600; color: var(--accent); }
+  h4 { margin: 22px 0 8px; font-size: 13px; font-weight: 600; color: var(--text-mute); text-transform: uppercase; letter-spacing: 0.5px; }
+  p { margin: 10px 0; }
+  ul, ol { padding-left: 22px; }
+  li { margin: 6px 0; }
+  code {
+    font-family: "SF Mono", Menlo, Monaco, Consolas, monospace;
+    font-size: 0.88em;
+    background: var(--bg-code);
+    padding: 1px 6px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+  }
+  pre {
+    background: var(--bg-code);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    overflow-x: auto;
+    font-size: 13px;
+    line-height: 1.55;
+  }
+  pre code { background: transparent; border: 0; padding: 0; }
+  .file {
+    display: inline-block;
+    font-family: "SF Mono", monospace;
+    font-size: 12px;
+    color: var(--text-mute);
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 8px;
+    margin: 2px 0;
+  }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+  th, td { padding: 10px 12px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+  th { color: var(--text-mute); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .badge {
+    display: inline-block; padding: 1px 7px; border-radius: 4px;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.3px;
+    border: 1px solid;
+  }
+  .b-new { color: var(--green);  border-color: var(--green);  background: rgba(63,185,80,0.1); }
+  .b-mod { color: var(--orange); border-color: var(--orange); background: rgba(210,153,34,0.1); }
+  .b-tag { color: var(--purple); border-color: var(--purple); background: rgba(188,140,255,0.1); }
+  .why {
+    border-left: 3px solid var(--accent);
+    background: rgba(88,166,255,0.05);
+    padding: 10px 14px;
+    border-radius: 0 6px 6px 0;
+    margin: 12px 0;
+    font-size: 14px;
+  }
+  .why strong { color: var(--accent); }
+  .why.warn { border-left-color: var(--orange); background: rgba(210,153,34,0.05); }
+  .why.warn strong { color: var(--orange); }
+  nav.toc {
+    background: var(--bg-elev); border: 1px solid var(--border);
+    border-radius: 8px; padding: 16px 20px; margin: 24px 0 40px;
+  }
+  nav.toc ol { margin: 0; padding-left: 20px; }
+  nav.toc a { color: var(--accent); text-decoration: none; }
+  nav.toc a:hover { text-decoration: underline; }
+  hr { border: 0; border-top: 1px solid var(--border); margin: 32px 0; }
+  .flow {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    font-family: "SF Mono", monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    white-space: pre;
+    overflow-x: auto;
+  }
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 12px 0;
+  }
+  .grid-2 > div {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .grid-2 .title { font-size: 13px; font-weight: 600; color: var(--accent); margin-bottom: 6px; }
+  .grid-2 .body { font-size: 13px; color: var(--text-mute); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Backend Walk-through — Multivariant Flag</h1>
+  <div class="meta">
+    Hangi dosyayı neden yazdık, hangisi neyi çözüyor
+    <span class="pill">.NET 9</span>
+    <span class="pill">Carter + MediatR</span>
+    <span class="pill">EF Core 9 · PostgreSQL</span>
+  </div>
+</header>
+
+<nav class="toc">
+  <strong>İçindekiler</strong>
+  <ol>
+    <li><a href="#big-picture">Büyük Resim</a></li>
+    <li><a href="#schema">1. Schema Katmanı</a> — entity'ler + EF config + migration</li>
+    <li><a href="#create">2. Flag + Variants Yaratma</a></li>
+    <li><a href="#crud">3. Variant CRUD</a></li>
+    <li><a href="#weights">4. Weight Yönetimi</a></li>
+    <li><a href="#eval">5. Evaluate — Server-side</a></li>
+    <li><a href="#read">6. Read Paths (UI &amp; SDK için)</a></li>
+    <li><a href="#patterns">7. Tekrarlayan Pattern'ler</a></li>
+  </ol>
+</nav>
+
+<section id="big-picture">
+<h2>Büyük Resim</h2>
+<p>Backend bir <strong>Carter + MediatR vertical slice</strong> uygulaması. Her use case bir klasör, klasör içinde 2 dosya: bir Endpoint (HTTP route), bir Handler (iş mantığı). Hiçbir manuel registration yok — Carter ve MediatR runtime'da assembly tarar.</p>
+
+<p>Multivariant için 4 ana akış var:</p>
+
+<div class="grid-2">
+  <div>
+    <div class="title">YAZ akışları (write)</div>
+    <div class="body">
+      CreateFlag (+variants) ·
+      Add/Update/Delete Variant ·
+      SetEnv/Targeting Weights
+    </div>
+  </div>
+  <div>
+    <div class="title">OKU akışları (read)</div>
+    <div class="body">
+      GetByProject (UI listele) ·
+      GetRuleset (SDK pull) ·
+      EvaluateFlag (direkt eval)
+    </div>
+  </div>
+</div>
+
+<div class="flow">HTTP request
+  ↓
+Carter (Endpoint.cs)  ─ route + body parse
+  ↓
+MediatR (Handler.cs)  ─ auth check → validation → DB ops → response
+  ↓
+SwitchlyDbContext     ─ EF Core 9 → PostgreSQL
+  ↓
+Response&lt;T&gt; envelope</div>
+
+<div class="why">
+  <strong>Neden vertical slice?</strong> Her use case kendi içinde kapanır — command record, validator, response DTO, handler hepsi tek dosyada. Yeni use case eklemek = yeni klasör. Cross-cutting kaygı yok, refactor riski düşük.
+</div>
+</section>
+
+<section id="schema">
+<h2>1. Schema Katmanı</h2>
+<p>Multivariant için sadece <strong>2 yeni tablo</strong> ekledik. Mevcut <code>Variant</code> tablosu zaten flag'e bağlıydı; eksik olan "hangi variant'a kaç % trafik" bilgisiydi — bunu env ve targeting seviyelerinde tutmamız gerekti.</p>
+
+<h3>Yeni entity'ler</h3>
+
+<h4>FeatureFlagEnvironmentVariantWeight <span class="badge b-new">YENİ</span></h4>
+<p class="file">Entities/FeatureFlagEnvironmentVariantWeight.cs</p>
+<pre><code>public class FeatureFlagEnvironmentVariantWeight
+{
+    public Guid Id { get; set; }
+    public Guid FeatureFlagEnvironmentId { get; set; }
+    public FeatureFlagEnvironment FeatureFlagEnvironment { get; set; } = default!;
+    public Guid VariantId { get; set; }
+    public Variant Variant { get; set; } = default!;
+    public int Weight { get; set; }   // 0–100; toplam=100 app-side validate
+}</code></pre>
+<div class="why">
+  <strong>Neden bu tablo?</strong> Bir flag'in <code>FeatureFlagEnvironment</code>'ında "hiçbir segment eşleşmediğinde default dağılım ne olsun?" sorusunun cevabı. Variant kendisi flag-level (her env'de aynı isimler), ama <em>her env'in kendi default dağılımı</em> olabilir.
+</div>
+
+<h4>FeatureFlagSegmentTargetingVariantWeight <span class="badge b-new">YENİ</span></h4>
+<p class="file">Entities/FeatureFlagSegmentTargetingVariantWeight.cs</p>
+<p>Yapısal olarak yukarıdakiyle birebir aynı — parent <code>FeatureFlagSegmentTargeting</code>. "Bu segment eşleşirse şu dağılımı uygula" bilgisini taşıyor, env default'unu override ediyor.</p>
+
+<div class="why">
+  <strong>Neden iki ayrı tablo, tek polimorfik değil?</strong>
+  Tek <code>WeightOwner(Type, OwnerId, …)</code> tablosu da yapılabilirdi ama EF'de cascade delete ve referential integrity polimorfik FK ile temiz değil. İki tabloyla: explicit FK, otomatik cascade, daha selective index, daha okunur projection. Domain'de polimorfizmin esneklik faydası yok.
+</div>
+
+<h3>Mevcut entity'lerdeki nav property eklemeleri <span class="badge b-mod">DEĞİŞTİ</span></h3>
+<ul>
+  <li><span class="file">Entities/FeatureFlagEnvironment.cs</span> → <code>VariantWeights</code> collection (env'in dağılımına ulaşmak için)</li>
+  <li><span class="file">Entities/FeatureFlagSegmentTargeting.cs</span> → <code>VariantWeights</code> collection</li>
+  <li><span class="file">Entities/Variant.cs</span> → ters yöne <code>EnvironmentWeights</code> + <code>TargetingWeights</code> (variant silinince ne düşeceğini EF'in görmesi için)</li>
+</ul>
+
+<h3>EF Configurations</h3>
+<p>Her tablonun kendi config dosyası (<span class="file">Context/Configurations/</span>): cascade delete kuralları + composite unique index.</p>
+
+<pre><code>// FeatureFlagEnvironmentVariantWeightConfiguration.cs
+builder.HasIndex(x => new { x.FeatureFlagEnvironmentId, x.VariantId })
+    .IsUnique();
+
+builder.HasOne(x => x.FeatureFlagEnvironment)
+    .WithMany(fe => fe.VariantWeights)
+    .HasForeignKey(x => x.FeatureFlagEnvironmentId)
+    .OnDelete(DeleteBehavior.Cascade);
+
+builder.HasOne(x => x.Variant)
+    .WithMany(v => v.EnvironmentWeights)
+    .HasForeignKey(x => x.VariantId)
+    .OnDelete(DeleteBehavior.Cascade);</code></pre>
+
+<div class="why">
+  <strong>Neden cascade her iki yönde de?</strong>
+  <ul>
+    <li>Env silinince → o env'in weight kayıtları anlamsız, otomatik düşmeli</li>
+    <li>Variant silinince → onunla ilgili weight satırları da düşmeli; ama bu env'in toplam=100 invariant'ını bozar — evaluator buna toleranslı (missing variant'ı 0 weight gibi davranır)</li>
+  </ul>
+</div>
+
+<div class="why warn">
+  <strong>Unique index neden composite?</strong> <code>(EnvId, VariantId)</code> aynı çiftin iki kez tanımlanmasını engeller — uygulama hatasını DB seviyesinde yakalar. Tek başına <code>VariantId</code> unique olamaz çünkü aynı variant farklı env'lerde weight taşır.
+</div>
+
+<h3>Migration</h3>
+<p class="file">Context/Migrations/20260511090524_AddVariantWeightTables.cs</p>
+<p>EF tarafından generate edildi, iki tablo CREATE + indexes. Çalıştırmak için:</p>
+<pre><code>dotnet ef database update --project Switchly-2.0.WebApi</code></pre>
+
+<h3>DbContext</h3>
+<p class="file">Context/SwitchlyDbContext.cs</p>
+<p>İki yeni <code>DbSet&lt;&gt;</code> eklendi. Entity konfigürasyonları <code>ApplyConfigurationsFromAssembly</code> ile otomatik yükleniyor — manuel kayıt yok.</p>
+</section>
+
+<section id="create">
+<h2>2. Flag + Variants Yaratma</h2>
+<p class="file">Features/Flags/CreateFlag/CreateFlagCommandHandler.cs</p>
+<p class="file">Features/Flags/CreateFlag/CreateFlagEndpoint.cs</p>
+
+<h3>Ne yapıyor?</h3>
+<ul>
+  <li><code>POST /api/flag/create</code> → flag oluşturur + (Multivariant ise) variants'ı atomik şekilde yazar</li>
+  <li>Tüm env'ler için <code>FeatureFlagEnvironment</code> fan-out (eskisi gibi)</li>
+  <li>Multivariant'ta default env'e <strong>baseline weight</strong> yazar: ilk variant=100, diğerleri=0</li>
+</ul>
+
+<h3>Validation tablosu</h3>
+<table>
+  <tr><th>Flag tipi</th><th>Variants kontrol</th></tr>
+  <tr><td>Boolean (1)</td><td>Variants <strong>gönderilemez</strong> → <code>"Boolean flag için Variants gönderilemez."</code></td></tr>
+  <tr><td>Multivariant (2)</td><td>Min 2 zorunlu; key non-empty; case-insensitive unique</td></tr>
+  <tr><td>Config (3)</td><td>MVP'de zorunluluk yok (ileride payload zorunlu eklenebilir)</td></tr>
+</table>
+
+<h3>Default env'e baseline weight neden?</h3>
+<div class="why">
+  Boolean flag'lerde default env <code>AllUsers/100</code> ile yaratılıyordu (flag baştan herkese açık). Multivariant'ta analoğu: ilk variant'a %100. Yoksa flag yaratıldığı anda evaluate edilirse <strong>weight yok → Off</strong> dönerdi. Predictable bir starting state için bu seed kritik.
+</div>
+
+<h3>Akış</h3>
+<div class="flow">handler.Handle()
+  ├─ OrganizationMember check       (auth)
+  ├─ Project var mı + ait mi        (defense in depth)
+  ├─ Flag.Key benzersiz mi          (project scope)
+  ├─ ValidateVariants(type, list)   (type'a göre kural)
+  ├─ Insert FeatureFlag
+  ├─ Insert Variants (varsa, SortOrder=index)
+  ├─ Insert FeatureFlagEnvironments (env başına 1)
+  ├─ Multivariant + default env → Insert baseline weights
+  └─ SaveChanges atomik</div>
+
+<div class="why">
+  <strong>Tek <code>SaveChangesAsync</code> neden?</strong> Hepsi tek transaction'da yazılsın diye. Yarısı yazılır yarısı yazılmazsa ortada zombie flag kalır.
+</div>
+</section>
+
+<section id="crud">
+<h2>3. Variant CRUD</h2>
+<p>Mevcut flag'e sonradan variant eklemek/silmek için 3 use case. Hepsi <span class="file">Features/Variants/&lt;UseCase&gt;/</span> altında.</p>
+
+<table>
+  <tr><th width="80">Method</th><th>Path</th><th>Use case</th></tr>
+  <tr><td>POST</td><td><code>/api/flag/{flagId}/variants</code></td><td>AddVariant</td></tr>
+  <tr><td>PATCH</td><td><code>/api/variant/{variantId}</code></td><td>UpdateVariant</td></tr>
+  <tr><td>DELETE</td><td><code>/api/variant/{variantId}</code></td><td>DeleteVariant</td></tr>
+</table>
+
+<h3>AddVariant</h3>
+<p class="file">Features/Variants/AddVariant/AddVariantHandler.cs</p>
+<ul>
+  <li>Flag Multivariant değilse 400 (sadece bu tipe variant eklenir)</li>
+  <li>Key case-insensitive unique check (flag scope'unda)</li>
+  <li><code>SortOrder = max(existing) + 1</code> — sona ekler, mevcut bucket sıralaması bozulmaz</li>
+  <li>Otomatik weight set <strong>etmez</strong> — kullanıcı `SetWeights` ile manuel verir</li>
+</ul>
+
+<h3>UpdateVariant — Key değiştirilmiyor</h3>
+<p class="file">Features/Variants/UpdateVariant/UpdateVariantHandler.cs</p>
+<pre><code>// Sadece Name ve PayloadJson güncellenir
+variant.Name = request.Name?.Trim();
+variant.PayloadJson = request.PayloadJson;</code></pre>
+
+<div class="why warn">
+  <strong>Neden Key değişmiyor?</strong> Variant key analytics, log, event sistemlerinde <strong>stable identifier</strong> rolü oynar. Runtime'da rename geçmiş veriyi kirletir ("treatment_v1 dün vardı, bugün nereye gitti?"). Rename istersen: delete + add. Bilinçli kısıt.
+</div>
+
+<h3>DeleteVariant</h3>
+<p class="file">Features/Variants/DeleteVariant/DeleteVariantHandler.cs</p>
+<ul>
+  <li>Kalan variant sayısı &lt; 2 olamaz (Multivariant invariant'ı)</li>
+  <li>Cascade ile bağlı weight kayıtları otomatik düşer</li>
+  <li>Sonuç olarak env/targeting toplam=100 geçici olarak bozulur — evaluator missing variant'ı 0 gibi davranır, kullanıcı tekrar set etmeli</li>
+</ul>
+
+<div class="why">
+  <strong>Neden auto-redistribute yok?</strong> "Variant silindi, kalan %50'yi diğerine ver" magic davranış olur. Kullanıcı niyetini explicit set etmeli — kontrol kullanıcıda kalsın.
+</div>
+</section>
+
+<section id="weights">
+<h2>4. Weight Yönetimi</h2>
+<p>İki endpoint, aynı validation chain, farklı parent.</p>
+
+<table>
+  <tr><th width="80">Method</th><th>Path</th><th>Scope</th></tr>
+  <tr><td>PUT</td><td><code>/api/flag/environment/{flagEnvId}/variant-weights</code></td><td>Env default (kimse eşleşmezse)</td></tr>
+  <tr><td>PUT</td><td><code>/api/flag/targeting/{targetingId}/variant-weights</code></td><td>Targeting eşleşince (env'i override eder)</td></tr>
+</table>
+
+<p class="file">Features/ProjectEnviroments/SetEnvironmentVariantWeights/SetEnvironmentVariantWeightsHandler.cs</p>
+<p class="file">Features/ProjectEnviroments/SetTargetingVariantWeights/SetTargetingVariantWeightsHandler.cs</p>
+
+<h3>Replace-all semantik</h3>
+<p>Endpoint mevcut weight kayıtlarını <strong>siler ve yenisini yazar</strong>. Partial update yok.</p>
+
+<pre><code>var existing = await context.FeatureFlagEnvironmentVariantWeights
+    .Where(w => w.FeatureFlagEnvironmentId == env.Id)
+    .ToListAsync(ct);
+
+if (existing.Count > 0)
+    context.FeatureFlagEnvironmentVariantWeights.RemoveRange(existing);
+
+context.FeatureFlagEnvironmentVariantWeights.AddRange(fresh);
+await context.SaveChangesAsync(ct);</code></pre>
+
+<div class="why">
+  <strong>Replace-all neden tercih edildi?</strong>
+  <ul>
+    <li>Toplam=100 invariant'ını korumak kolay (tek bir snapshot'ı validate ediyoruz)</li>
+    <li>API tüketicisi "tam state" gönderiyor → idempotent</li>
+    <li>UI tarafı zaten tüm satırları gösterip toplu kaydediyor — partial update mantıksız</li>
+    <li>Kill-switch senaryosunda <code>{control:100, treatment:0}</code> tek PUT yeterli</li>
+  </ul>
+</div>
+
+<h3>Validation chain</h3>
+<pre><code>1. Owner var mı (env / targeting)                  → "bulunamadı"
+2. User bu org'un member'ı mı                       → 401
+3. Flag.Type == Multivariant mi                     → "sadece Multivariant"
+4. Weight list non-empty                            → "boş olamaz"
+5. Her weight 0–100 arasında                        → "0–100 olmalı"
+6. VariantId'ler benzersiz                          → "aynı variant tekrar"
+7. Tüm VariantId'ler bu flag'e ait                  → "flag'e ait değil"
+8. Sum(weights) == 100                              → "toplam 100 olmalı"</code></pre>
+
+<div class="why">
+  <strong>Neden toplam 100?</strong> Bucket algoritması cumulative weight üzerinden çalışır (0..99 bucket'a maple). Toplam 100 değilse bazı bucket'lar boşa düşer ve Off döner — istenmeyen davranış. App-side enforce, DB'de constraint değil (PostgreSQL CHECK constraint eklenebilir ama esneklik kaybı).
+</div>
+</section>
+
+<section id="eval">
+<h2>5. Evaluate — Server-side</h2>
+<p class="file">Features/Flags/EvaluateFlag/EvaluateFlagHandler.cs</p>
+<p><code>POST /api/flag/evaluate</code> — public, auth gerekmez. SDK kullanmayan istemciler için. Direkt server-side eval yapar.</p>
+
+<h3>Request &amp; response</h3>
+<pre><code>// Request
+{
+  "publicKey": "...", "projectKey": "...", "environmentKey": "...",
+  "flagKey": "...", "userKey": "ali_123",
+  "traits": { "country": "TR", "plan": "premium" }
+}
+
+// Response
+{
+  "isEnabled": true,
+  "variantKey": "treatment",
+  "variantPayloadJson": "{\"color\":\"#10b981\"}"
+}</code></pre>
+
+<h3>Tek-query snapshot pattern</h3>
+<p>Önceki versiyonda 5 ayrı query vardı (org → project → env → flag → flagEnv). Yeni versiyonda <strong>tek projection query</strong> ile tüm eval verisi yükleniyor:</p>
+
+<pre><code>var snapshot = await context.FeatureFlagEnvironments
+    .AsNoTracking()
+    .Where(fe => fe.FeatureFlag.Key == flagKey
+                 && fe.ProjectEnvironment.Key == environmentKey
+                 && fe.FeatureFlag.Project.Key == projectKey
+                 && fe.FeatureFlag.Project.Organization.PublicKey == publicKey)
+    .Select(fe => new FlagEvalSnapshot(
+        fe.FeatureFlag.Key, fe.FeatureFlag.Type,
+        fe.IsEnabled, fe.DefaultRolloutKind, fe.DefaultRolloutPercentage,
+        fe.FeatureFlag.Variants.OrderBy(v => v.SortOrder).Select(...).ToList(),
+        fe.VariantWeights.Select(...).ToList(),
+        fe.SegmentTargetings.Where(t => t.IsEnabled).OrderByDescending(t => t.Priority)
+            .Select(...).ToList()
+    ))
+    .FirstOrDefaultAsync(ct);</code></pre>
+
+<div class="why">
+  <strong>Neden tek query?</strong>
+  <ul>
+    <li>Round-trip sayısı 5 → 1 (eval bir hot path, latency önemli)</li>
+    <li>SQL tarafı bir JOIN graph'ı olarak optimize eder</li>
+    <li>Snapshot pattern → eval logic'i in-memory record üzerinde sync çalışır (mock'lamak, test etmek kolay)</li>
+  </ul>
+</div>
+
+<div class="why warn">
+  <strong>Information disclosure trade-off:</strong>
+  Eski 5-query "Organization bulunamadı." / "Project bulunamadı." / "Flag bulunamadı." gibi spesifik hatalar dönüyordu. Yeni versiyon hepsini "Flag bulunamadı." altında topluyor. Public endpoint için bu daha güvenli — saldırgan hangi parçanın eksik olduğunu öğrenemiyor.
+</div>
+
+<h3>Eval algoritması</h3>
+<div class="flow">if (!snapshot.EnvEnabled) → Off
+
+foreach (targeting in snapshot.Targetings):    // priority desc, IsEnabled
+  if (RulesMatch(targeting.Rules, traits, op)):
+    return type == Multivariant
+      ? PickVariant(snapshot, targeting.VariantWeights, userKey)
+      : Boolean(ApplyRollout(targeting.RolloutKind, targeting.RolloutPercentage));
+
+// hiçbir targeting eşleşmedi → env default
+return type == Multivariant
+  ? PickVariant(snapshot, snapshot.EnvVariantWeights, userKey)
+  : Boolean(ApplyRollout(snapshot.DefaultRolloutKind, snapshot.DefaultRolloutPercentage));</div>
+
+<h3>Bucket fonksiyonu</h3>
+<pre><code>private static int Bucket(string flagKey, string userKey)
+{
+    var input = Encoding.UTF8.GetBytes($"{flagKey}:{userKey}");
+    var hash = SHA256.HashData(input);
+    return (int)(BitConverter.ToUInt32(hash, 0) % 100);
+}</code></pre>
+
+<div class="why">
+  <strong>Neden SHA256, neden bu format?</strong>
+  <ul>
+    <li>Deterministik — aynı user her zaman aynı bucket</li>
+    <li>Uniform distribution — variant'lar arasında dengeli dağılım</li>
+    <li><code>"flagKey:userKey"</code> format → bir kullanıcı farklı flag'lerde bağımsız bucket'lara düşer (cross-flag korelasyon yok, A/B testler birbirini etkilemez)</li>
+    <li>SHA256 cryptographic değil ama uniform; MD5 da çalışırdı ama .NET 9'da HashData API'si SHA256'da daha rahat</li>
+  </ul>
+</div>
+
+<div class="why">
+  <strong>Server ile SDK aynı algoritmayı kullanıyor</strong> — SDK in-memory ruleset'ten eval ederken aynı SHA256 input'unu üretir. Sonuçlar birebir aynı. Aynı kullanıcı server tarafında ve SDK tarafında aynı variant'a düşer.
+</div>
+
+<h3>PickVariant detayı</h3>
+<pre><code>private static EvaluateFlagResponseDto PickVariant(
+    FlagEvalSnapshot flag,
+    List&lt;VariantWeightSnapshot&gt; weights,
+    string? userKey)
+{
+    if (weights.Count == 0) return Off;
+    if (string.IsNullOrWhiteSpace(userKey)) return Off;   // stable bucket yoksa safe-default
+
+    var bucket = Bucket(flag.Key, userKey);
+    var weightByVariantId = weights.ToDictionary(w => w.VariantId, w => w.Weight);
+
+    var cumulative = 0;
+    foreach (var v in flag.Variants)         // SortOrder garantili sırada
+    {
+        if (!weightByVariantId.TryGetValue(v.Id, out var w) || w &lt;= 0) continue;
+        cumulative += w;
+        if (bucket &lt; cumulative)
+            return new EvaluateFlagResponseDto(true, v.Key, v.PayloadJson);
+    }
+    return Off;
+}</code></pre>
+
+<div class="why warn">
+  <strong>userKey yoksa Off neden?</strong> Multivariant'ta stable bucket için userKey şart. Yoksa her istek farklı variant'a düşerdi — A/B test verisi geçersiz. Safe default Off.
+</div>
+</section>
+
+<section id="read">
+<h2>6. Read Paths (UI &amp; SDK için)</h2>
+
+<h3>GetByProject — Dashboard listele</h3>
+<p class="file">Features/Flags/GetByProject/GetByProjectCommandHandler.cs <span class="badge b-mod">DEĞİŞTİ</span></p>
+<p>Dashboard'da flag listesi + her flag'in env'leri + her env'in segmentleri + (yeni) <strong>variant ve weight bilgisi</strong>.</p>
+
+<p>Genişletilen kısımlar:</p>
+<ul>
+  <li><code>GetFlagVariantDto</code> → <code>SortOrder</code> eklendi (UI doğru sırada göstersin diye)</li>
+  <li><code>GetFlagEnvironmentDto.VariantWeights</code> → env'in mevcut dağılımı</li>
+  <li><code>SegmentGroupsDto.VariantWeights</code> → targeting'in mevcut dağılımı</li>
+</ul>
+
+<div class="why">
+  <strong>Neden GetByProject'i genişlettik, ayrı endpoint açmadık?</strong> UI zaten flag listesini bu endpoint'ten çekiyor — variant/weight bilgisi de o cevabın doğal parçası. Ayrı endpoint olsa UI 2 sıralı çağrı yapar, daha yavaş.
+</div>
+
+<h3>GetRuleset — SDK pull</h3>
+<p class="file">Features/Flags/GetRuleset/GetRulesetHandler.cs <span class="badge b-mod">DEĞİŞTİ</span></p>
+<p><code>GET /api/flag/ruleset?publicKey&amp;projectKey&amp;environmentKey</code> — public endpoint, SDK periyodik poll eder. Bir env'in tüm eval verisini tek seferde döner.</p>
+
+<p>Eklenen alanlar:</p>
+<ul>
+  <li><code>FlagRulesetDto.Type</code> — Boolean / Multivariant / Config</li>
+  <li><code>FlagRulesetDto.Variants[]</code> — id, key, name, payloadJson, sortOrder</li>
+  <li><code>FlagRulesetDto.EnvVariantWeights[]</code> — bu env'in default dağılımı</li>
+  <li><code>TargetingRulesetDto.VariantWeights[]</code> — her targeting'in dağılımı</li>
+</ul>
+
+<div class="why">
+  <strong>Neden SDK için ayrı endpoint?</strong>
+  <ul>
+    <li>SDK auth'lı değil — public consume eder (PublicKey ile tanımlanır)</li>
+    <li>Bir env'in tüm flag verisi atomik snapshot olarak gelir → SDK cache'i çelişkili hale gelmez</li>
+    <li>Periyodik poll için optimize → GET, idempotent, CDN'lenebilir (ileride)</li>
+  </ul>
+</div>
+
+<h3>Karşılaştırma: 3 read path</h3>
+<table>
+  <tr><th>Endpoint</th><th>Auth</th><th>Scope</th><th>Tüketici</th><th>Payload boyutu</th></tr>
+  <tr><td>GetByProject</td><td>JWT</td><td>Tüm flag'ler, tüm env'ler</td><td>UI dashboard</td><td>Büyük</td></tr>
+  <tr><td>GetRuleset</td><td>Public</td><td>Tek env, tüm flag'ler</td><td>SDK</td><td>Orta</td></tr>
+  <tr><td>EvaluateFlag</td><td>Public</td><td>Tek flag, tek user</td><td>SDK kullanmayan istemci</td><td>Küçük</td></tr>
+</table>
+</section>
+
+<section id="patterns">
+<h2>7. Tekrarlayan Pattern'ler</h2>
+
+<h3>Auth check zinciri</h3>
+<p>Yetki kontrolü her write handler'ın ilk işi. Tipik desen:</p>
+<pre><code>var entity = await context.Variants
+    .Include(v => v.FeatureFlag)
+        .ThenInclude(f => f.Project)        // Organization'a kadar in
+    .FirstOrDefaultAsync(...);
+
+var isMember = await context.OrganizationMembers
+    .AnyAsync(m =>
+        m.OrganizationId == entity.FeatureFlag.Project.OrganizationId &&
+        m.UserId == userContext.UserId, ct);
+
+if (!isMember)
+    throw new UnauthorizedAccessException("Bu organization için yetkin yok.");</code></pre>
+
+<div class="why">
+  <strong>Neden include ile yetki?</strong> Variant doğrudan OrganizationId taşımıyor; chain ile org'a ulaşıyoruz. Bu pattern her seviyedeki entity için aynı — flat tree'yi yukarı kaydır, OrganizationMember'a sor.
+</div>
+
+<h3>Response&lt;T&gt; envelope</h3>
+<p>Tüm endpoint'ler standart envelope döner:</p>
+<pre><code>{ "success": true, "message": null, "data": { ... }, "errors": null }</code></pre>
+<p>Handler'da:</p>
+<pre><code>return Response&lt;Dto&gt;.Ok(payload);           // başarı
+return Response&lt;Dto&gt;.Fail("hata mesajı");   // beklenen iş hatası
+throw new UnauthorizedAccessException(...); // 401</code></pre>
+
+<div class="why">
+  <strong>Throw vs Fail neden farklı?</strong>
+  <ul>
+    <li><code>Fail</code> → "kullanıcı yanlış input verdi / iş kuralı ihlal etti" → 400 BadRequest, UI gösterir</li>
+    <li><code>throw</code> → "should-never-happen / auth failure" → exception, üst katman handle eder</li>
+  </ul>
+</div>
+
+<h3>Carter endpoint pattern</h3>
+<p>Her Endpoint dosyası bir <code>CarterModule</code>. Carter bunu runtime'da bulup map ediyor. Boilerplate:</p>
+<pre><code>public class AddVariantEndpoint : CarterModule
+{
+    public sealed class Request { public string Key { get; set; } = default!; ... }
+
+    public override void AddRoutes(IEndpointRouteBuilder app)
+    {
+        app.MapPost("/api/flag/{flagId:guid}/variants",
+            async (Guid flagId, [FromBody] Request r, IMediator mediator) =>
+            {
+                var cmd = new AddVariantCommand(flagId, r.Key, r.Name, r.PayloadJson);
+                var res = await mediator.Send(cmd);
+                return res.Success ? Results.Ok(res) : Results.BadRequest(res);
+            })
+            .WithTags("Variant").WithName("AddVariant").RequireAuthorization();
+    }
+}</code></pre>
+<p>Endpoint sadece HTTP &harr; MediatR köprüsü; iş mantığı handler'da. Bu sayede aynı command MediatR üzerinden başka yerden de çağrılabilir (örn. background job, başka handler).</p>
+
+<h3>FeatureFlagType enum (Boolean=1, Multivariant=2, Config=3)</h3>
+<p>Magic number değil — int enum olarak DB'de saklanıyor. UI int gönderiyor, deserialization otomatik. <code>FeatureFlagType.Multivariant</code> hem .NET hem JSON.</p>
+
+</section>
+
+<hr>
+<p style="color: var(--text-mute); font-size: 13px; text-align: center; margin-top: 40px;">
+  Multivariant backend implementation — 5 phase, ~20 dosya değişikliği, 0 build hatası.<br>
+  Migration: <code>dotnet ef database update --project Switchly-2.0.WebApi</code>
+</p>
+
+</div>
+</body>
+</html>

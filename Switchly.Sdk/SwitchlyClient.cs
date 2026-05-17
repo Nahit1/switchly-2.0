@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Switchly.Sdk.Internal;
 
@@ -14,15 +15,21 @@ public sealed class SwitchlyClient
 {
     private readonly RulesetCache _cache;
     private readonly FlagEvaluator _evaluator;
+    private readonly ExposureRecorder _recorder;
+    private readonly ConversionRecorder _conversionRecorder;
     private readonly IServiceScopeFactory _scopeFactory;
 
     internal SwitchlyClient(
         RulesetCache cache,
         FlagEvaluator evaluator,
+        ExposureRecorder recorder,
+        ConversionRecorder conversionRecorder,
         IServiceScopeFactory scopeFactory)
     {
         _cache = cache;
         _evaluator = evaluator;
+        _recorder = recorder;
+        _conversionRecorder = conversionRecorder;
         _scopeFactory = scopeFactory;
     }
 
@@ -64,7 +71,48 @@ public sealed class SwitchlyClient
         var flag = ruleset.Flags.FirstOrDefault(f => f.Key == flagKey);
         if (flag is null) return EvaluationResult.Off;
 
-        return _evaluator.Evaluate(flag, userKey, traits);
+        var result = _evaluator.Evaluate(flag, userKey, traits);
+
+        // Exposure tracking — sadece flag gerçekten evaluate edildiğinde kaydet.
+        // Ruleset yüklenmediği veya flag bulunmadığı durumlarda Off dönüyoruz ama
+        // bunlar consumer'ın yanlış konfig'i ya da SDK warmup state'i — tracking spam'lemesin.
+        _recorder.TryRecord(userKey, flagKey, result.VariantKey, result.IsOn);
+
+        return result;
+    }
+
+    /// <summary>
+    /// Domain conversion event'i kaydeder: kullanıcı bizim için anlamlı bir eylem yaptı
+    /// (checkout, signup, subscribe, vs). Backend analytics sorgusu bu olayı user'ın gördüğü
+    /// son variant'a atfedip "hangi variant daha başarılı" sorusunu cevaplar.
+    /// </summary>
+    /// <param name="eventName">Domain event ismi — "checkout_completed", "signup", "button_clicked".
+    /// Stable identifier olmalı; bir kez kararlaştır, sonra dashboard'da raporlar bu key'le çıkar.</param>
+    /// <param name="userKey">User'ın stable identifier'ı. Exposure'da kullanılanla AYNI olmalı —
+    /// attribution bu key üzerinden join'leniyor.</param>
+    /// <param name="value">Opsiyonel numeric metric: revenue, score, sayım. null = sadece sayım eventi.</param>
+    /// <param name="properties">Opsiyonel metadata (filter/drill-down için). JSON'a serialize edilip backend'e yollanır.</param>
+    public void Track(
+        string eventName,
+        string userKey,
+        decimal? value = null,
+        IReadOnlyDictionary<string, string>? properties = null)
+    {
+        string? propsJson = null;
+        if (properties is { Count: > 0 })
+        {
+            try
+            {
+                propsJson = JsonSerializer.Serialize(properties);
+            }
+            catch
+            {
+                // Serialization patladıysa event'i tamamen düşürmeyelim, sadece properties kaybolsun.
+                propsJson = null;
+            }
+        }
+
+        _conversionRecorder.TryRecord(userKey, eventName, value, propsJson);
     }
 
     /// <summary>

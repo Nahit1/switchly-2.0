@@ -19,4 +19,28 @@ public sealed class SwitchlyOptions
 
     /// <summary>How often the SDK refreshes the ruleset in the background. Default: 30s.</summary>
     public TimeSpan PollingInterval { get; set; } = SwitchlyDefaults.PollingInterval;
+
+    /// <summary>
+    /// Exposure event tracking aç/kapa. true ise IsOn/GetVariant çağrıları bir
+    /// (user, flag, variant) maruziyetini batch'leyip backend'e gönderir.
+    /// </summary>
+    public bool TrackingEnabled { get; set; } = true;
+
+    /// <summary>Background flusher event queue'yu hangi sıklıkta boşaltıp POST etsin. Default: 10sn.</summary>
+    public TimeSpan FlushInterval { get; set; } = SwitchlyDefaults.FlushInterval;
+
+    /// <summary>Tek POST'ta gönderilecek maksimum event sayısı. Backend MaxBatchSize'ıyla hizalı olmalı.</summary>
+    public int FlushBatchSize { get; set; } = SwitchlyDefaults.FlushBatchSize;
+
+    /// <summary>
+    /// Queue'da tutulabilecek maksimum event. Aşıldığında yeni event'ler drop edilir
+    /// (fail-soft; app slow-down etmesin diye consumer'ı bloklamıyoruz).
+    /// </summary>
+    public int MaxQueueSize { get; set; } = SwitchlyDefaults.MaxQueueSize;
+
+    /// <summary>
+    /// (userKey, flagKey, outcome) kombinasyonunun yeniden event üretebilmesi için
+    /// beklenecek süre. Default: 5dk. Düşürürsen daha sık event, network artar.
+    /// </summary>
+    public TimeSpan DedupTtl { get; set; } = SwitchlyDefaults.DedupTtl;
 }
