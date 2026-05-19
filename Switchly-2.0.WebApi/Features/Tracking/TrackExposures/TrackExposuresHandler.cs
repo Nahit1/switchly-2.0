@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Switchly_2._0.WebApi.Context;
 using Switchly_2._0.WebApi.Entities;
 using Switchly_2._0.WebApi.Models.Common;
+using Switchly_2._0.WebApi.Observability;
 
 namespace Switchly_2._0.WebApi.Features.Tracking.TrackExposures;
 
@@ -31,6 +32,9 @@ public sealed class TrackExposuresHandler(SwitchlyDbContext context)
 
     public async Task<Response<TrackExposuresDto>> Handle(TrackExposuresCommand request, CancellationToken ct)
     {
+        using var activity = SwitchlyActivitySources.Tracking.StartActivity("TrackExposures.Ingest");
+        activity?.SetTag("incoming_events", request.Events?.Count ?? 0);
+
         var publicKey = (request.PublicKey ?? string.Empty).Trim();
         var projectKey = (request.ProjectKey ?? string.Empty).Trim();
         var environmentKey = (request.EnvironmentKey ?? string.Empty).Trim();
@@ -150,6 +154,9 @@ public sealed class TrackExposuresHandler(SwitchlyDbContext context)
             context.FlagExposureEvents.AddRange(entities);
             await context.SaveChangesAsync(ct);
         }
+
+        activity?.SetTag("accepted", entities.Count);
+        activity?.SetTag("skipped", skipped);
 
         return Response<TrackExposuresDto>.Ok(new TrackExposuresDto(entities.Count, skipped));
     }

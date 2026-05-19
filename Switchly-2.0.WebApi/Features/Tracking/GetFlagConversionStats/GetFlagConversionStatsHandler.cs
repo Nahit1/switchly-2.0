@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Switchly_2._0.WebApi.Auth;
 using Switchly_2._0.WebApi.Context;
 using Switchly_2._0.WebApi.Models.Common;
+using Switchly_2._0.WebApi.Observability;
 
 namespace Switchly_2._0.WebApi.Features.Tracking.GetFlagConversionStats;
 
@@ -36,7 +37,8 @@ public sealed record VariantConversionStatsDto(
     double? LiftPercent,             // Baseline'a göre lift % (display için backend hesaplıyor).
     double? LiftCiLowPercent,        // Lift güven aralığının alt sınırı (%95 güven).
     double? LiftCiHighPercent,       // Üst sınır.
-    bool IsBaseline                  // Bu satır baseline mı (UI badge için).
+    bool IsBaseline,                 // Bu satır baseline mı (UI badge için).
+    int? RequiredAdditionalUsers     // Significance'a ulaşmak için kaç user daha gerek (variant başına). null = baseline veya zaten anlamlı.
 );
 
 // Exposure × Conversion join: user'ın last variant'ı → conversion'lar.
@@ -47,6 +49,10 @@ public sealed class GetFlagConversionStatsHandler(SwitchlyDbContext context, IUs
 {
     public async Task<Response<FlagConversionStatsDto>> Handle(GetFlagConversionStatsQuery request, CancellationToken ct)
     {
+        using var activity = SwitchlyActivitySources.Tracking.StartActivity("GetFlagConversionStats.Join");
+        activity?.SetTag("flag_id", request.FlagId.ToString());
+        activity?.SetTag("event_name", request.EventName);
+
         var eventName = (request.EventName ?? string.Empty).Trim();
         if (string.IsNullOrEmpty(eventName))
             return Response<FlagConversionStatsDto>.Fail("EventName zorunludur.");
@@ -197,6 +203,7 @@ public sealed class GetFlagConversionStatsHandler(SwitchlyDbContext context, IUs
                 double? liftPercent = null;
                 double? liftCiLow = null;
                 double? liftCiHigh = null;
+                int? requiredAdditionalUsers = null;
 
                 if (!isBaseline && baselineRow is not null)
                 {
@@ -211,6 +218,16 @@ public sealed class GetFlagConversionStatsHandler(SwitchlyDbContext context, IUs
                         liftPercent = stats.LiftPercent;
                         liftCiLow = stats.LiftCiLowPercent;
                         liftCiHigh = stats.LiftCiHighPercent;
+
+                        // Anlamlı değilse: kaç user daha gerek?
+                        if (!isSignificant)
+                        {
+                            var p1 = (double)v.ConvertedUsers / v.ExposedUsers;
+                            var p2 = (double)baselineRow.ConvertedUsers / baselineRow.ExposedUsers;
+                            var needed = ProportionStats.RequiredSampleSize(p1, p2);
+                            if (needed.HasValue && needed.Value > v.ExposedUsers)
+                                requiredAdditionalUsers = needed.Value - v.ExposedUsers;
+                        }
                     }
                 }
 
@@ -226,7 +243,8 @@ public sealed class GetFlagConversionStatsHandler(SwitchlyDbContext context, IUs
                     LiftPercent: liftPercent,
                     LiftCiLowPercent: liftCiLow,
                     LiftCiHighPercent: liftCiHigh,
-                    IsBaseline: isBaseline
+                    IsBaseline: isBaseline,
+                    RequiredAdditionalUsers: requiredAdditionalUsers
                 );
             })
             .OrderByDescending(v => v.ExposedUsers)
@@ -266,6 +284,36 @@ internal static class ProportionStats
         double LiftPercent,        // (p1 - p2) / p2 * 100
         double LiftCiLowPercent,
         double LiftCiHighPercent);
+
+    /// <summary>
+    /// Gözlenen p1/p2 farkını %95 güven + %80 power ile doğrulamak için variant başına
+    /// kaç user gerekli? Klasik iki-orantı power analizi formülü:
+    /// n = (z_{α/2}·√(2p̄q̄) + z_β·√(p1q1 + p2q2))² / (p1-p2)²
+    ///     α=0.05 → z_{α/2}=1.96, power=0.80 → z_β=0.84.
+    /// p1=p2 ise fark sıfır → sonsuz user gerekirdi, null döner.
+    /// </summary>
+    public static int? RequiredSampleSize(double p1, double p2)
+    {
+        if (p1 < 0 || p1 > 1 || p2 < 0 || p2 > 1) return null;
+        var delta = p1 - p2;
+        if (Math.Abs(delta) < 1e-9) return null;        // ölçülebilir fark yok
+
+        const double zAlpha = 1.96;
+        const double zBeta = 0.84;
+
+        var pBar = (p1 + p2) / 2.0;
+        var qBar = 1 - pBar;
+        var q1 = 1 - p1;
+        var q2 = 1 - p2;
+
+        var numerator = zAlpha * Math.Sqrt(2 * pBar * qBar)
+                      + zBeta * Math.Sqrt(p1 * q1 + p2 * q2);
+        var n = (numerator * numerator) / (delta * delta);
+
+        // Üst sınır koy: çok büyük rakamlar (örn. >10M) UI'da anlamsız.
+        if (n > 10_000_000) return null;
+        return (int)Math.Ceiling(n);
+    }
 
     public static TestResult? Compute(int conv1, int n1, int conv2, int n2)
     {

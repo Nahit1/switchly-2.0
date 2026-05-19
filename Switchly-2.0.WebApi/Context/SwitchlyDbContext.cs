@@ -24,6 +24,9 @@ public class SwitchlyDbContext(DbContextOptions<SwitchlyDbContext> opts):DbConte
     public DbSet<SegmentRule> SegmentRules => Set<SegmentRule>();
     public DbSet<FlagExposureEvent> FlagExposureEvents => Set<FlagExposureEvent>();
     public DbSet<ConversionEvent> ConversionEvents => Set<ConversionEvent>();
+    public DbSet<RolloutSchedule> RolloutSchedules => Set<RolloutSchedule>();
+    public DbSet<RolloutScheduleStep> RolloutScheduleSteps => Set<RolloutScheduleStep>();
+    public DbSet<FlagErrorEvent> FlagErrorEvents => Set<FlagErrorEvent>();
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

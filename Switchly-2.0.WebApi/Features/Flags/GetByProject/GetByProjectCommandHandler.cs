@@ -56,6 +56,37 @@ public sealed record GetFlagEnvironmentDto
 
     public List<VariantWeightDto> VariantWeights { get; set; } = new();
     public List<SegmentGroupsDto> SegmentGroups { get; set; } = new();
+
+    // Aktif veya pause edilmiş rollout schedule (terminal state'tekiler dahil edilmez).
+    // Null = bu env için aktif rollout yok → UI "Schedule Oluştur" butonu gösterir.
+    public EnvRolloutScheduleDto? RolloutSchedule { get; set; }
+}
+
+public sealed record EnvRolloutScheduleDto
+{
+    public Guid Id { get; set; }
+    public Guid? TargetVariantId { get; set; }
+    public string? TargetVariantKey { get; set; }
+    public string Status { get; set; } = default!;
+    public int CurrentStepIndex { get; set; }
+    public DateTimeOffset? StartedAt { get; set; }
+    public DateTimeOffset? LastTransitionAt { get; set; }
+    public DateTimeOffset? PausedAt { get; set; }
+    public List<EnvRolloutScheduleStepDto> Steps { get; set; } = new();
+
+    // Guardrail (Seviye 2) config + state.
+    public int? ErrorThreshold { get; set; }
+    public int ErrorWindowMinutes { get; set; }
+    public string? MinSeverity { get; set; }
+    public string? RolledBackReason { get; set; }
+}
+
+public sealed record EnvRolloutScheduleStepDto
+{
+    public int StepIndex { get; set; }
+    public int Percentage { get; set; }
+    public int DurationMinutes { get; set; }
+    public DateTimeOffset? PromotedAt { get; set; }
 }
 
 public sealed record SegmentGroupsDto
@@ -148,7 +179,44 @@ public class GetByProjectCommandHandler(SwitchlyDbContext context, IUserContext 
                                         Operator = r.Operator,
                                         Value = r.Value,
                                     }).ToList()
-                            }).ToList()
+                            }).ToList(),
+
+                        // En güncel schedule (Active/Paused öncelikli; aksi takdirde son 24h
+                        // içindeki terminal — auto-rollback bildirimi için UI'da kısa süre görünür).
+                        RolloutSchedule = context.RolloutSchedules
+                            .Where(s => s.FeatureFlagEnvironmentId == fe.Id
+                                        && (s.Status == RolloutScheduleStatus.Active
+                                            || s.Status == RolloutScheduleStatus.Paused
+                                            || s.CreatedAt >= DateTimeOffset.UtcNow.AddDays(-1)))
+                            .OrderByDescending(s =>
+                                s.Status == RolloutScheduleStatus.Active ||
+                                s.Status == RolloutScheduleStatus.Paused ? 1 : 0)
+                            .ThenByDescending(s => s.CreatedAt)
+                            .Select(s => new EnvRolloutScheduleDto
+                            {
+                                Id = s.Id,
+                                TargetVariantId = s.TargetVariantId,
+                                TargetVariantKey = s.TargetVariant != null ? s.TargetVariant.Key : null,
+                                Status = s.Status.ToString(),
+                                CurrentStepIndex = s.CurrentStepIndex,
+                                StartedAt = s.StartedAt,
+                                LastTransitionAt = s.LastTransitionAt,
+                                PausedAt = s.PausedAt,
+                                Steps = s.Steps
+                                    .OrderBy(st => st.StepIndex)
+                                    .Select(st => new EnvRolloutScheduleStepDto
+                                    {
+                                        StepIndex = st.StepIndex,
+                                        Percentage = st.Percentage,
+                                        DurationMinutes = st.DurationMinutes,
+                                        PromotedAt = st.PromotedAt
+                                    }).ToList(),
+                                ErrorThreshold = s.ErrorThreshold,
+                                ErrorWindowMinutes = s.ErrorWindowMinutes,
+                                MinSeverity = s.MinSeverity.ToString(),
+                                RolledBackReason = s.RolledBackReason
+                            })
+                            .FirstOrDefault()
 
                     }).ToList(),
                 Variants = f.Variants

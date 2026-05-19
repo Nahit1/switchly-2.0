@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Switchly_2._0.WebApi.Context;
 using Switchly_2._0.WebApi.Entities;
 using Switchly_2._0.WebApi.Models.Common;
+using Switchly_2._0.WebApi.Observability;
 
 namespace Switchly_2._0.WebApi.Features.Tracking.TrackConversions;
 
@@ -30,6 +31,9 @@ public sealed class TrackConversionsHandler(SwitchlyDbContext context)
 
     public async Task<Response<TrackConversionsDto>> Handle(TrackConversionsCommand request, CancellationToken ct)
     {
+        using var activity = SwitchlyActivitySources.Tracking.StartActivity("TrackConversions.Ingest");
+        activity?.SetTag("incoming_events", request.Events?.Count ?? 0);
+
         var publicKey = (request.PublicKey ?? string.Empty).Trim();
         var projectKey = (request.ProjectKey ?? string.Empty).Trim();
         var environmentKey = (request.EnvironmentKey ?? string.Empty).Trim();
@@ -101,6 +105,9 @@ public sealed class TrackConversionsHandler(SwitchlyDbContext context)
             context.ConversionEvents.AddRange(entities);
             await context.SaveChangesAsync(ct);
         }
+
+        activity?.SetTag("accepted", entities.Count);
+        activity?.SetTag("skipped", skipped);
 
         return Response<TrackConversionsDto>.Ok(new TrackConversionsDto(entities.Count, skipped));
     }

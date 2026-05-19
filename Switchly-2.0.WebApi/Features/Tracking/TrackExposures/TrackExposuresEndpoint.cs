@@ -38,6 +38,7 @@ public class TrackExposuresEndpoint : CarterModule
                 return res.Success ? Results.Ok(res) : Results.BadRequest(res);
             })
             .WithTags("Tracking")
-            .WithName("TrackExposures");
+            .WithName("TrackExposures")
+            .RequireRateLimiting("track");
     }
 }

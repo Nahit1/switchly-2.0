@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Switchly_2._0.WebApi.Context;
@@ -11,9 +12,11 @@ using Switchly_2._0.WebApi.Context;
 namespace Switchly_2._0.WebApi.Context.Migrations
 {
     [DbContext(typeof(SwitchlyDbContext))]
-    partial class SwitchlyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260518153718_AddRolloutSchedules")]
+    partial class AddRolloutSchedules
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -279,57 +282,6 @@ namespace Switchly_2._0.WebApi.Context.Migrations
                         .IsUnique();
 
                     b.ToTable("FeatureFlagSegmentTargetingVariantWeights");
-                });
-
-            modelBuilder.Entity("Switchly_2._0.WebApi.Entities.FlagErrorEvent", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("FeatureFlagId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasMaxLength(2048)
-                        .HasColumnType("character varying(2048)");
-
-                    b.Property<DateTimeOffset>("OccurredAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("OrganizationId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("ProjectEnvironmentId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("ProjectId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("PropertiesJson")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Severity")
-                        .IsRequired()
-                        .HasMaxLength(16)
-                        .HasColumnType("character varying(16)");
-
-                    b.Property<string>("Source")
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OrganizationId");
-
-                    b.HasIndex("ProjectId");
-
-                    b.HasIndex("FeatureFlagId", "OccurredAt");
-
-                    b.HasIndex("ProjectEnvironmentId", "FeatureFlagId", "OccurredAt");
-
-                    b.ToTable("FlagErrorEvents");
                 });
 
             modelBuilder.Entity("Switchly_2._0.WebApi.Entities.FlagExposureEvent", b =>
@@ -658,32 +610,17 @@ namespace Switchly_2._0.WebApi.Context.Migrations
                     b.Property<int>("CurrentStepIndex")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("ErrorThreshold")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ErrorWindowMinutes")
-                        .HasColumnType("integer");
-
                     b.Property<Guid>("FeatureFlagEnvironmentId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset?>("LastTransitionAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("MinSeverity")
-                        .IsRequired()
-                        .HasMaxLength(16)
-                        .HasColumnType("character varying(16)");
-
                     b.Property<DateTimeOffset?>("PausedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("PreScheduleSnapshot")
                         .HasColumnType("text");
-
-                    b.Property<string>("RolledBackReason")
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)");
 
                     b.Property<DateTimeOffset?>("StartedAt")
                         .HasColumnType("timestamp with time zone");
@@ -1011,41 +948,6 @@ namespace Switchly_2._0.WebApi.Context.Migrations
                     b.Navigation("FeatureFlagSegmentTargeting");
 
                     b.Navigation("Variant");
-                });
-
-            modelBuilder.Entity("Switchly_2._0.WebApi.Entities.FlagErrorEvent", b =>
-                {
-                    b.HasOne("Switchly_2._0.WebApi.Entities.FeatureFlag", "FeatureFlag")
-                        .WithMany()
-                        .HasForeignKey("FeatureFlagId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Switchly_2._0.WebApi.Entities.Organization", "Organization")
-                        .WithMany()
-                        .HasForeignKey("OrganizationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Switchly_2._0.WebApi.Entities.ProjectEnvironment", "ProjectEnvironment")
-                        .WithMany()
-                        .HasForeignKey("ProjectEnvironmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Switchly_2._0.WebApi.Entities.Project", "Project")
-                        .WithMany()
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("FeatureFlag");
-
-                    b.Navigation("Organization");
-
-                    b.Navigation("Project");
-
-                    b.Navigation("ProjectEnvironment");
                 });
 
             modelBuilder.Entity("Switchly_2._0.WebApi.Entities.FlagExposureEvent", b =>

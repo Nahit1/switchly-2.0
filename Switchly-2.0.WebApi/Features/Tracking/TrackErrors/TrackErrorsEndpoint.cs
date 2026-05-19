@@ -2,9 +2,9 @@ using Carter;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Switchly_2._0.WebApi.Features.Tracking.TrackConversions;
+namespace Switchly_2._0.WebApi.Features.Tracking.TrackErrors;
 
-public class TrackConversionsEndpoint : CarterModule
+public class TrackErrorsEndpoint : CarterModule
 {
     public sealed class Request
     {
@@ -16,29 +16,28 @@ public class TrackConversionsEndpoint : CarterModule
 
     public sealed class EventItem
     {
-        public string UserKey { get; set; } = default!;
-        public string EventName { get; set; } = default!;
-        public decimal? Value { get; set; }
+        public string FlagKey { get; set; } = default!;
+        public string Severity { get; set; } = "Error";
+        public string Message { get; set; } = default!;
+        public string? Source { get; set; }
         public string? PropertiesJson { get; set; }
         public DateTimeOffset OccurredAt { get; set; }
     }
 
     public override void AddRoutes(IEndpointRouteBuilder app)
     {
-        // /api/track/exposures ile aynı felsefe: unauth, PublicKey ile org-scope.
-        app.MapPost("/api/track/conversions", async ([FromBody] Request r, IMediator mediator) =>
+        app.MapPost("/api/track/errors", async ([FromBody] Request r, IMediator mediator) =>
             {
                 var events = r.Events
-                    .Select(e => new ConversionEventInput(
-                        e.UserKey, e.EventName, e.Value, e.PropertiesJson, e.OccurredAt))
+                    .Select(e => new ErrorEventInput(
+                        e.FlagKey, e.Severity, e.Message, e.Source, e.PropertiesJson, e.OccurredAt))
                     .ToList();
-
-                var cmd = new TrackConversionsCommand(r.PublicKey, r.ProjectKey, r.EnvironmentKey, events);
+                var cmd = new TrackErrorsCommand(r.PublicKey, r.ProjectKey, r.EnvironmentKey, events);
                 var res = await mediator.Send(cmd);
                 return res.Success ? Results.Ok(res) : Results.BadRequest(res);
             })
             .WithTags("Tracking")
-            .WithName("TrackConversions")
+            .WithName("TrackErrors")
             .RequireRateLimiting("track");
     }
 }
